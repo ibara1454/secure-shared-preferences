@@ -1,0 +1,3 @@
+rootProject.name='secure-shared-preferences'
+include ':app'
+include ':secure-shared-preferences'
