@@ -1,201 +1,99 @@
 package com.github.ibara1454.secure_shared_preferences
 
+import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.VisibleForTesting
 import com.github.ibara1454.secure_shared_preferences.cipher.*
-import java.util.concurrent.ConcurrentHashMap
+import java.io.IOException
 
-/**
- * An implementation of [SharedPreferences] that encrypts keys and values.
- */
-internal class SymmetricKeyEncryptedSharedPreferences(
-    private val storage: SharedPreferences,
-    private val encrypter: Encrypter<String>,
-    decrypter: Decrypter<String>
-): SharedPreferences {
-    private val encrypt = encrypter::encrypt
+internal class SymmetricKeyEncryptedSharedPreferencesFactory : PreferencesFactory {
+    // Generator for generating 128-bit length secret key
+    @VisibleForTesting
+    fun getSecretGenerator() = SecretGenerator()
 
-    private val decrypt = decrypter::decrypt
-
-    override fun contains(name: String?): Boolean {
-        return storage.contains(name?.let(encrypt))
+    // TODO: replace this exception by domain specific's exception
+    @Throws(IOException::class)
+    @VisibleForTesting
+    fun getSymmetricKeyEncryptedSharedPreferences(name: String, key: SecretKey, context: Context): SharedPreferences {
+        // Use encrypted shared preferences to save configurations
+        val preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+        return SymmetricKeyEncryptedSharedPreferences(preferences, key)
     }
 
-    override fun edit(): SharedPreferences.Editor {
-        return EditorImpl(storage.edit(), encrypter)
-    }
-
-    override fun getAll(): MutableMap<String, *> {
-        val entries = storage.all.entries.map {
-            val tName = decrypt(it.key)
-            val type = tName.substringBefore("_")
-            val name = tName.substringAfter("_")
-            val dValue = it.value as String
-            val value: Any? =
-                when (type) {
-                    "boolean" -> decrypt(dValue).toBoolean()
-                    "float" -> decrypt(dValue).toFloat()
-                    "int" -> decrypt(dValue).toInt()
-                    "long" -> decrypt(dValue).toLong()
-                    "string" -> decrypt(dValue)
-                    "stringset" -> decrypt(dValue).split(";").toMutableSet()
-                    else -> null
-                }
-            name to value
-        }.toTypedArray()
-        return mutableMapOf(*entries)
-    }
-
-    override fun getBoolean(name: String?, defValue: Boolean): Boolean {
-        val tName = name?.let { encrypt("boolean_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            decrypt(crypto).toBoolean()
+    /**
+     * Create a [SymmetricKeyEncryptedSharedPreferences].
+     *
+     * @param name Name of preferences.
+     * @param mode Operating mode. This parameter is same as the mode parameter in normal
+     *  SharedPreferences.
+     * [Context.getSharedPreferences].
+     * @return Returns the encrypted [SharedPreferences].
+     */
+    // TODO: replace this exception by domain specific exception
+    @Throws(IOException::class)
+    @Synchronized
+    override fun create(name: String, mode: Int, context: Context): SharedPreferences {
+        // Instantiate the global config to get the saved secret key
+        val config = SymmetricKeyEncryptedSharedPreferencesConfig(
+            getSymmetricKeyEncryptedSharedPreferences(CONFIG_NAME, configSecretKey, context)
+        )
+        // Read a existing secret key from config.
+        // If there is no secret key exists. Then generates a new key and save it into config.
+        val key = config.secretKey ?: getSecretGenerator().generate().also {
+            // Save new key into config
+            config.secretKey = it
         }
-    }
-
-    override fun getFloat(name: String?, defValue: Float): Float {
-        val tName = name?.let { encrypt("float_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            decrypt(crypto).toFloat()
-        }
-    }
-
-    override fun getInt(name: String?, defValue: Int): Int {
-        val tName = name?.let { encrypt("int_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            decrypt(crypto).toInt()
-        }
-    }
-
-    override fun getLong(name: String?, defValue: Long): Long {
-        val tName = name?.let { encrypt("long_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            decrypt(crypto).toLong()
-        }
-    }
-
-    override fun getString(name: String?, defValue: String?): String? {
-        val tName = name?.let { encrypt("string_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            decrypt(crypto)
-        }
-    }
-
-    override fun getStringSet(name: String?, defValue: MutableSet<String>?): MutableSet<String>? {
-        val tName = name?.let { encrypt("stringset_$name") }
-        val crypto = storage.getString(tName, null)
-        return if (crypto == null) {
-            defValue
-        } else {
-            val values = decrypt(crypto).split(";")
-            values.toMutableSet()
-        }
-    }
-
-    override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
-        if (listener != null) {
-            val encryptListener = SharedPreferences.OnSharedPreferenceChangeListener { _, crypto ->
-                val tName = decrypt(crypto)
-                val name = tName.substringAfter("_")
-                listener.onSharedPreferenceChanged(this, name)
-            }
-            listenerMap[listener] = encryptListener
-            storage.registerOnSharedPreferenceChangeListener(encryptListener)
-        }
-    }
-
-    override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
-        val encryptListener = listenerMap[listener]
-        storage.unregisterOnSharedPreferenceChangeListener(encryptListener)
-        listenerMap.remove(listener)
+        return getSymmetricKeyEncryptedSharedPreferences(name, key, context)
     }
 
     companion object {
-        // Note: The initialization of companion object itself is thread-safe.
-        // See: https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html#companion-objects
-        private val listenerMap: MutableMap<SharedPreferences.OnSharedPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener>
-            = ConcurrentHashMap()
+        // The name of preferences of config
+        // echo -n "SymmetricKeyEncryptedSharedPreferencesFactory_config" | sha256sum
+        private const val CONFIG_NAME = "41dd1ef45721398d6633e907363d91bc266a476f4cb4bef61f8c8b669b1de982"
+        // The secret key for encrypting this config preferences. There is no way to hide this key without using KeyStore.
+        private val configSecretKey: ByteArray = byteArrayOf(71, -6, -39, 122, -19, -86, 90, 14, -123, 86, -65, -35, -56, -4, -51, -95)
     }
 
-    internal class EditorImpl(
-        private val editor: SharedPreferences.Editor,
-        encrypter: Encrypter<String>
-    ): SharedPreferences.Editor {
-        private val encrypt = encrypter::encrypt
+    @VisibleForTesting
+    class SymmetricKeyEncryptedSharedPreferencesConfig(private val preferences: SharedPreferences) {
+        var secretKey: SecretKey?
+            get() = preferences.getString(KEY_NAME, "").run {
+                    if (this == null || this.isEmpty()) {
+                        null
+                    } else {
+                        // Convert string (use utf-8 encode) to byte array
+                        toByteArray(Charsets.UTF_8)
+                    }
+                }
+            // TODO: replace this exception by domain specific exception
+            @Throws(IOException::class)
+            set(value) {
+                // Important: use synchronized `commit` instead of `apply` to make sure the writing doesn't fail
+                val result =
+                    preferences.edit()
+                        // Convert byte array to string (use utf-8 encode)
+                        .putString(KEY_NAME, value?.toString(Charsets.UTF_8))
+                        .commit()
+                // TODO: throw custom exception
+                if (!result) throw IOException()
+            }
 
-        override fun apply() {
-            editor.apply()
-        }
-
-        override fun clear(): SharedPreferences.Editor {
-            return editor.clear()
-        }
-
-        override fun commit(): Boolean {
-            return editor.commit()
-        }
-
-        override fun putBoolean(name: String?, value: Boolean): SharedPreferences.Editor {
-            return editor.putString(
-                name?.let { encrypt("boolean_$name") } ,
-                value.toString().let(encrypt)
-            )
-        }
-
-        override fun putFloat(name: String?, value: Float): SharedPreferences.Editor {
-            // TODO: use scientific notation to convert to string instead
-            return editor.putString(
-                name?.let { encrypt("float_$name") } ,
-                value.toString().let(encrypt)
-            )
-        }
-
-        override fun putInt(name: String?, value: Int): SharedPreferences.Editor {
-            return editor.putString(
-                name?.let { encrypt("int_$name") } ,
-                value.toString().let(encrypt)
-            )
-        }
-
-        override fun putLong(name: String?, value: Long): SharedPreferences.Editor {
-            return editor.putString(
-                name?.let { encrypt("long_$name") } ,
-                value.toString().let(encrypt)
-            )
-        }
-
-        override fun putString(name: String?, value: String?): SharedPreferences.Editor {
-            return editor.putString(
-                name?.let { encrypt("string_$name") } ,
-                value?.let(encrypt)
-            )
-        }
-
-        override fun putStringSet(name: String?, value: MutableSet<String>?): SharedPreferences.Editor {
-            // FIXME: choose separator dependent on value dynamically
-            val separator = ";"
-            return editor.putString(
-                name?.let { encrypt("stringset_$name") } ,
-                value?.joinToString(separator = separator)?.let(encrypt)
-            )
-        }
-
-        override fun remove(name: String?): SharedPreferences.Editor {
-            return editor.remove(name?.let(encrypt))
+        companion object {
+            // The key name of the secret key which is used on encrypting another secret keys
+            private const val KEY_NAME = "secret_key"
         }
     }
+}
+
+// TODO: replace this exception by domain specific exception
+internal class SymmetricKeyEncryptedSharedPreferences @Throws(Exception::class) constructor(
+    storage: SharedPreferences,
+    key: SecretKey
+) : SharedPreferences by EncryptedSharedPreferences(
+    storage = storage,
+    encrypter = StringEncrypter(Base64Encrypter()::encrypt compose AESEncrypter(key)::encrypt),
+    decrypter = StringDecrypter(AESDecrypter(key)::decrypt compose Base64Decrypter()::decrypt)
+) {
+    // Add SymmetricKeyEncryptedSharedPreferences creator by class delegation
+    companion object : PreferencesFactory by SymmetricKeyEncryptedSharedPreferencesFactory()
 }

@@ -11,6 +11,6 @@ class SecretGenerator {
     }
 
     companion object {
-        private const val SECRET_LENGTH = 128
+        private const val SECRET_LENGTH = 16
     }
 }

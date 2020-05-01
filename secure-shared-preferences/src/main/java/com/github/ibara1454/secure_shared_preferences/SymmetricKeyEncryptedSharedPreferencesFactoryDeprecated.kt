@@ -6,7 +6,7 @@ import androidx.annotation.VisibleForTesting
 import com.github.ibara1454.secure_shared_preferences.cipher.*
 import java.io.IOException
 
-internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context: Context) {
+internal class SymmetricKeyEncryptedSharedPreferencesFactoryDeprecated(private val context: Context) {
     @VisibleForTesting
     val config: SharedPreferences = run {
         // TODO: change configKey
@@ -15,7 +15,7 @@ internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context
         val decrypter = StringDecrypter(AESDecrypter(configKey)::decrypt compose Base64Decrypter()::decrypt)
         val storage = context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
         // Use encrypted shared preferences to save configurations
-        SymmetricKeyEncryptedSharedPreferences(storage, encrypter, decrypter)
+        EncryptedSharedPreferences(storage, encrypter, decrypter)
     }
 
     @VisibleForTesting
@@ -48,11 +48,11 @@ internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context
      * @param name Name of preferences.
      * @param mode Operating mode. This value is same as the mode parameter in
      * [Context.getSharedPreferences].
-     * @return Returns the encrypted [SymmetricKeyEncryptedSharedPreferences].
+     * @return Returns the encrypted [EncryptedSharedPreferences].
      */
     @Throws(IOException::class)
     @Synchronized
-    fun create(name: String, mode: Int): SymmetricKeyEncryptedSharedPreferences {
+    fun create(name: String, mode: Int): EncryptedSharedPreferences {
         // Read a existing secret key from config or generate a new secret key
         val key = secretKey ?: secretGenerator.generate().also {
             // Save new key into config
@@ -63,7 +63,7 @@ internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context
         val decrypter = StringDecrypter(AESDecrypter(key)::decrypt compose Base64Decrypter()::decrypt)
         // Get the unencrypted normal shared preferences
         val storage = context.getSharedPreferences(name, mode)
-        return SymmetricKeyEncryptedSharedPreferences(storage, encrypter, decrypter)
+        return EncryptedSharedPreferences(storage, encrypter, decrypter)
     }
 
     companion object {
