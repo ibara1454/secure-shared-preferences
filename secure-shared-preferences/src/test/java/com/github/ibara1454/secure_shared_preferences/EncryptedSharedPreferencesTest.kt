@@ -322,220 +322,220 @@ class EncryptedSharedPreferencesTest {
         // Problem(2020.04.27): Mockk doesn't support private property mocks
         // See https://github.com/mockk/mockk/issues/104
     }
+}
 
-    @RunWith(AndroidJUnit4::class)
-    class EditorImplTest {
-        @Test
-        fun test_apply_is_transparently() {
-            val encrypter = mockk<Encrypter<String>>()
+@RunWith(AndroidJUnit4::class)
+class EditorImplTest {
+    @Test
+    fun test_apply_is_transparently() {
+        val encrypter = mockk<Encrypter<String>>()
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.apply() } just Runs
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.apply() } just Runs
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.apply()
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.apply()
 
-            verify(exactly = 1) { nativeEditor.apply() }
+        verify(exactly = 1) { nativeEditor.apply() }
+    }
+
+    @Test
+    fun test_clear_is_transparently() {
+        val encrypter = mockk<Encrypter<String>>()
+
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.clear() } returns nativeEditor
+
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.clear()
+
+        verify(exactly = 1) { nativeEditor.clear() }
+    }
+
+    @Test
+    fun test_commit_is_transparently() {
+        val encrypter = mockk<Encrypter<String>>()
+
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.commit() } returns true
+
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        val actual = editor.commit()
+
+        verify { nativeEditor.commit() }
+        assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun test_putBoolean_put_encrypted_value_into_storage_if_input_is_nonnull() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
+
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putBoolean("name", true)
+
+        verifyAll {
+            encrypter.encrypt("boolean_name")
+            encrypter.encrypt("true")
+            nativeEditor.putString("encrypted_boolean_name", "encrypted_true")
         }
+    }
 
-        @Test
-        fun test_clear_is_transparently() {
-            val encrypter = mockk<Encrypter<String>>()
+    @Test
+    fun test_putFloat_put_encrypted_value_into_storage_if_input_is_nonnull() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.clear() } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.clear()
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putFloat("name", 1.0f)
 
-            verify(exactly = 1) { nativeEditor.clear() }
+        verifyAll {
+            encrypter.encrypt("float_name")
+            encrypter.encrypt("1.0")
+            nativeEditor.putString("encrypted_float_name", "encrypted_1.0")
         }
+    }
 
-        @Test
-        fun test_commit_is_transparently() {
-            val encrypter = mockk<Encrypter<String>>()
+    @Test
+    fun test_putInt_put_encrypted_value_into_storage_if_input_is_nonnull() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.commit() } returns true
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            val actual = editor.commit()
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putInt("name", 1)
 
-            verify { nativeEditor.commit() }
-            assertThat(actual).isTrue()
+        verifyAll {
+            encrypter.encrypt("int_name")
+            encrypter.encrypt("1")
+            nativeEditor.putString("encrypted_int_name", "encrypted_1")
         }
+    }
 
-        @Test
-        fun test_putBoolean_put_encrypted_value_into_storage_if_input_is_nonnull() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putLong_put_encrypted_value_into_storage_if_input_is_nonnull() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putBoolean("name", true)
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putLong("name", 1L)
 
-            verifyAll {
-                encrypter.encrypt("boolean_name")
-                encrypter.encrypt("true")
-                nativeEditor.putString("encrypted_boolean_name", "encrypted_true")
-            }
+        verifyAll {
+            encrypter.encrypt("long_name")
+            encrypter.encrypt("1")
+            nativeEditor.putString("encrypted_long_name", "encrypted_1")
         }
+    }
 
-        @Test
-        fun test_putFloat_put_encrypted_value_into_storage_if_input_is_nonnull() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putString_put_encrypted_value_into_storage_if_input_is_nonnull() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putFloat("name", 1.0f)
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putString("name", "value")
 
-            verifyAll {
-                encrypter.encrypt("float_name")
-                encrypter.encrypt("1.0")
-                nativeEditor.putString("encrypted_float_name", "encrypted_1.0")
-            }
+        verifyAll {
+            encrypter.encrypt("string_name")
+            encrypter.encrypt("value")
+            nativeEditor.putString("encrypted_string_name", "encrypted_value")
         }
+    }
 
-        @Test
-        fun test_putInt_put_encrypted_value_into_storage_if_input_is_nonnull() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putString_put_null_into_storage_if_input_is_null() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putInt("name", 1)
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putString("name", null)
 
-            verifyAll {
-                encrypter.encrypt("int_name")
-                encrypter.encrypt("1")
-                nativeEditor.putString("encrypted_int_name", "encrypted_1")
-            }
+        verifyAll {
+            encrypter.encrypt("string_name")
+            nativeEditor.putString("encrypted_string_name", null)
         }
+    }
 
-        @Test
-        fun test_putLong_put_encrypted_value_into_storage_if_input_is_nonnull() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putStringSet_put_encrypted_value_into_storage_if_input_is_not_empty() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putLong("name", 1L)
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putStringSet("name", mutableSetOf("1", "2", "3"))
 
-            verifyAll {
-                encrypter.encrypt("long_name")
-                encrypter.encrypt("1")
-                nativeEditor.putString("encrypted_long_name", "encrypted_1")
-            }
+        verifyAll {
+            encrypter.encrypt("stringset_name")
+            encrypter.encrypt("1;2;3")
+            nativeEditor.putString("encrypted_stringset_name", "encrypted_1;2;3")
         }
+    }
 
-        @Test
-        fun test_putString_put_encrypted_value_into_storage_if_input_is_nonnull() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putStringSet_put_encrypted_value_into_storage_if_input_is_empty() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putString("name", "value")
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putStringSet("name", mutableSetOf())
 
-            verifyAll {
-                encrypter.encrypt("string_name")
-                encrypter.encrypt("value")
-                nativeEditor.putString("encrypted_string_name", "encrypted_value")
-            }
+        verifyAll {
+            encrypter.encrypt("stringset_name")
+            encrypter.encrypt("")
+            nativeEditor.putString("encrypted_stringset_name", "encrypted_")
         }
+    }
 
-        @Test
-        fun test_putString_put_null_into_storage_if_input_is_null() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_putStringSet_put_null_into_storage_if_input_is_null() {
+        val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putString("name", null)
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.putStringSet("name", null)
 
-            verifyAll {
-                encrypter.encrypt("string_name")
-                nativeEditor.putString("encrypted_string_name", null)
-            }
+        verifyAll {
+            encrypter.encrypt("stringset_name")
+            nativeEditor.putString("encrypted_stringset_name", null)
         }
+    }
 
-        @Test
-        fun test_putStringSet_put_encrypted_value_into_storage_if_input_is_not_empty() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
+    @Test
+    fun test_remove_is_transparently() {
+        val encrypter = mockk<Encrypter<String>>()
 
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
+        val nativeEditor = mockk<SharedPreferences.Editor>()
+        every { nativeEditor.clear() } returns nativeEditor
 
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putStringSet("name", mutableSetOf("1", "2", "3"))
+        val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
+        editor.clear()
 
-            verifyAll {
-                encrypter.encrypt("stringset_name")
-                encrypter.encrypt("1;2;3")
-                nativeEditor.putString("encrypted_stringset_name", "encrypted_1;2;3")
-            }
-        }
-
-        @Test
-        fun test_putStringSet_put_encrypted_value_into_storage_if_input_is_empty() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
-
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
-
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putStringSet("name", mutableSetOf())
-
-            verifyAll {
-                encrypter.encrypt("stringset_name")
-                encrypter.encrypt("")
-                nativeEditor.putString("encrypted_stringset_name", "encrypted_")
-            }
-        }
-
-        @Test
-        fun test_putStringSet_put_null_into_storage_if_input_is_null() {
-            val encrypter = mockk<Encrypter<String>>()
-            every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
-
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.putString(any(), any()) } returns nativeEditor
-
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.putStringSet("name", null)
-
-            verifyAll {
-                encrypter.encrypt("stringset_name")
-                nativeEditor.putString("encrypted_stringset_name", null)
-            }
-        }
-
-        @Test
-        fun test_remove_is_transparently() {
-            val encrypter = mockk<Encrypter<String>>()
-
-            val nativeEditor = mockk<SharedPreferences.Editor>()
-            every { nativeEditor.clear() } returns nativeEditor
-
-            val editor = EncryptedSharedPreferences.EditorImpl(nativeEditor, encrypter)
-            editor.clear()
-
-            verify(exactly = 1) { nativeEditor.clear() }
-        }
+        verify(exactly = 1) { nativeEditor.clear() }
     }
 }
