@@ -3,6 +3,7 @@ package com.github.ibara1454.secure_shared_preferences
 import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.github.ibara1454.secure_shared_preferences.cipher.*
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
 import org.junit.Test
@@ -81,7 +82,11 @@ class SecretKeysConfigTest {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } returns null
 
-        val config = SecretKeys.SecretKeysConfig(preferences)
+        val encrypter = mockk<Encrypter<SecretKey>>()
+
+        val decrypter = mockk<Decrypter<SecretKey>>()
+
+        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
         val actual = config.secretKey
 
         assertThat(actual).isNull()
@@ -92,7 +97,11 @@ class SecretKeysConfigTest {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } returns ""
 
-        val config = SecretKeys.SecretKeysConfig(preferences)
+        val encrypter = mockk<Encrypter<SecretKey>>()
+
+        val decrypter = mockk<Decrypter<SecretKey>>()
+
+        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
         val actual = config.secretKey
 
         assertThat(actual).isNull()
@@ -101,45 +110,72 @@ class SecretKeysConfigTest {
     @Test
     fun test_secretKey_get_returns_byte_array_if_key_exist() {
         val preferences = mockk<SharedPreferences>()
-        every { preferences.getString(any(), any()) } returns "dummy key"
+        val key = "dummy key".toByteArray()
+        every { preferences.getString(any(), any()) } returns (key + 0x0.toByte()).toString(Charsets.UTF_8)
 
-        val config = SecretKeys.SecretKeysConfig(preferences)
+        val encrypter = mockk<Encrypter<SecretKey>>()
+
+        val decrypter = mockk<Decrypter<SecretKey>>()
+        every { decrypter.decrypt(any()) } answers {
+            val bytes = firstArg<ByteArray>()
+            bytes.take(bytes.size - 1).toByteArray()
+        }
+
+        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
         val actual = config.secretKey
 
-        assertThat(actual).isNotNull()
+        assertThat(actual).isEqualTo(key)
     }
 
     @Test
     fun test_secretKey_set_just_run_if_commit_succeeded() {
+        val key = "dummy key".toByteArray()
         val preferences = mockk<SharedPreferences>()
         val editor = mockk<SharedPreferences.Editor>()
         every { preferences.edit() } returns editor
         every { editor.putString(any(), any()) } returns editor
         every { editor.commit() } returns true
 
-        val config = SecretKeys.SecretKeysConfig(preferences)
-        config.secretKey = "dummy key".toByteArray()
+        val encrypter = mockk<Encrypter<SecretKey>>()
+        every { encrypter.encrypt(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
 
-        verify { editor.commit() }
+        val decrypter = mockk<Decrypter<SecretKey>>()
+
+        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        config.secretKey = key
+
+        verify {
+            editor.putString(any(), (key + 0x0.toByte()).toString(Charsets.UTF_8))
+            editor.commit()
+        }
     }
 
     @Test
     fun test_secretKey_set_throws_exception_if_commit_failed() {
+        val key = "dummy key".toByteArray()
         val preferences = mockk<SharedPreferences>()
         val editor = mockk<SharedPreferences.Editor>()
         every { preferences.edit() } returns editor
         every { editor.putString(any(), any()) } returns editor
         every { editor.commit() } returns false
 
-        val config = SecretKeys.SecretKeysConfig(preferences)
+        val encrypter = mockk<Encrypter<SecretKey>>()
+        every { encrypter.encrypt(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
+
+        val decrypter = mockk<Decrypter<SecretKey>>()
+
+        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
 
         try {
-            config.secretKey = "dummy key".toByteArray()
+            config.secretKey = key
             assertThat(false).isTrue() // This line should not be executed
         } catch (e: Exception) {
             assertThat(e).isInstanceOf(IOException::class.java)
         }
 
-        verify { editor.commit() }
+        verify {
+            editor.putString(any(), (key + 0x0.toByte()).toString(Charsets.UTF_8))
+            editor.commit()
+        }
     }
 }
