@@ -1,8 +1,9 @@
-package com.github.ibara1454.secure_shared_preferences
+package com.github.ibara1454.secure_shared_preferences.shared_preferences
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
+import com.github.ibara1454.secure_shared_preferences.SecretGenerator
 import com.github.ibara1454.secure_shared_preferences.cipher.*
 import java.io.IOException
 

@@ -2,6 +2,7 @@ package com.github.ibara1454.secure_shared_preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.SecureSharedPreferencesFactory
 
 fun Context.getSecureSharedPreferences(name: String, mode: Int): SharedPreferences {
     val factory = SecureSharedPreferencesFactory(this)
