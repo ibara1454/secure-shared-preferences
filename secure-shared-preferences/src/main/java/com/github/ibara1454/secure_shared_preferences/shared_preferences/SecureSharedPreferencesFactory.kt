@@ -9,7 +9,7 @@ import java.io.IOException
 internal class SecureSharedPreferencesFactory(
     private val context: Context,
     private val config: SecureSharedPreferencesConfig = SecureSharedPreferencesConfig(context)
-) {
+): SharedPreferencesFactory {
     @VisibleForTesting
     val topEncryptType: EncryptType
         get() =
@@ -54,7 +54,7 @@ internal class SecureSharedPreferencesFactory(
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
     @Synchronized
-    fun create(name: String, mode: Int): SharedPreferences {
+    override fun create(name: String, mode: Int): SharedPreferences {
         val currentType = config.currentEncryptType
         val targetType = currentType ?: topEncryptType
         // Since creation of SharedPreferences need IO performances, not every time the creation

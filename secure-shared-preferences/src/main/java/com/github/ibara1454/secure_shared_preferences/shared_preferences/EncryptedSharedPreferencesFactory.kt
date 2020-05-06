@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 
-class EncryptedSharedPreferencesFactory(private val context: Context) {
-    fun create(name: String, mode: Int): SharedPreferences {
+class EncryptedSharedPreferencesFactory(private val context: Context): SharedPreferencesFactory {
+    override fun create(name: String, mode: Int): SharedPreferences {
         val masterKeys = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
         // TODO: catch exceptions thrown from EncryptedSharedPreferences.create
         return EncryptedSharedPreferences.create(

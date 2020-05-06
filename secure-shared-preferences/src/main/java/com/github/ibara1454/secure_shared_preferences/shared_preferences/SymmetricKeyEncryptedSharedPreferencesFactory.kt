@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import java.io.IOException
 
-internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context: Context) {
+internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context: Context):
+    SharedPreferencesFactory
+{
     /**
      * Create a [SymmetricKeyEncryptedSharedPreferences].
      *
@@ -16,7 +18,7 @@ internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
     @Synchronized
-    fun create(name: String, mode: Int): SharedPreferences {
+    override fun create(name: String, mode: Int): SharedPreferences {
         val key = SecretKeys.getOrCreate(context)
 
         val preferences = context.getSharedPreferences(name, mode)
