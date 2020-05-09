@@ -6,7 +6,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * The decrypter of AES algorithm.
+ * The decrypter using AES algorithm.
  *
  * This class can decrypt the crypto built by [AESEncrypter].
  * To do this, you should use the same 16-byte secret key as the key in [AESEncrypter] to construct
@@ -17,14 +17,17 @@ import javax.crypto.spec.SecretKeySpec
  * @throws InvalidKeyException if the secret key is not 16 bytes.
  */
 internal class AESDecrypter
-    @Throws(InvalidSpecificationException::class, InvalidKeyException:: class)
-    constructor(secretKey: ByteArray): Decrypter<ByteArray>
-{
+@Throws(InvalidSpecificationException::class, InvalidKeyException::class)
+constructor(secretKey: ByteArray): Decrypter<ByteArray> {
     private val decrypter: Cipher
     // The 16-byte length secret key
     private val secretKeySpec: SecretKeySpec
 
     init {
+        // The key length should be 16 bytes (128 bits) when using AES algorithm
+        if (secretKey.size != 16) {
+            throw InvalidKeyException()
+        }
         try {
             // Set the transformation to instantiate cipher.
             //  Choose 'AES' for algorithm, 'CBC' for mode, and 'PKCS#5' for padding.
@@ -42,10 +45,6 @@ internal class AESDecrypter
             // Shouldn't happen
             throw InvalidSpecificationException()
         }
-        // The key length should be 16 bytes (128 bits) when using AES algorithm
-        if (secretKey.size != 16) {
-            throw InvalidKeyException()
-        }
         secretKeySpec = SecretKeySpec(secretKey, "AES")
     }
 
@@ -53,7 +52,7 @@ internal class AESDecrypter
      * Convert the given encrypted text to origin text.
      *
      * Note that the length of input text should be a multiple of 16, and the text must be
-     * encrypted by the AES algorithm. The text should be formed by 2 part: the initial vector
+     * encrypted by the AES algorithm. The text should be formed by two parts: the initial vector
      * part and the crypto part. That is,
      *
      *         | Initial Vector (IV) part |             Crypto part            |
