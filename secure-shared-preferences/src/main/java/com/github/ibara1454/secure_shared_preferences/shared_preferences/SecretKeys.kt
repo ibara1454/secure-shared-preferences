@@ -44,16 +44,16 @@ internal object SecretKeys {
      * @property preferences Any [SharedPreferences] instance. This class use [SharedPreferences] to
      *  read and save secret key, so [preferences] should be an encrypted [SharedPreferences], or
      *  the secret key will be saved with plain text.
-     * @property encrypter An [Encrypter] to convert byte array (the secret key) to the format
-     *  could be encoded to string. The default encrypter is [Base64Encrypter].
-     * @property decrypter An [Decrypter] to convert the byte array encrypted by [encrypter] to the
-     *  original byte array. The default decrypter is [Base64Decrypter].
+     * @property encoder An [Encoder] to convert byte array (the secret key) to the format
+     *  could be encoded to string. The default encrypter is [Base64Encoder].
+     * @property decoder An [Decoder] to convert the byte array encrypted by [encoder] to the
+     *  original byte array. The default decrypter is [Base64Decoder].
      */
     @VisibleForTesting
     internal class SecretKeysConfig(
         private val preferences: SharedPreferences,
-        private val encrypter: Encrypter<SecretKey> = Base64Encrypter(),
-        private val decrypter: Decrypter<SecretKey> = Base64Decrypter()
+        private val encoder: Encoder<SecretKey> = Base64Encoder(),
+        private val decoder: Decoder<SecretKey> = Base64Decoder()
     ) {
         var secretKey: SecretKey?
             // TODO: replace this exception by domain specific exception
@@ -63,7 +63,7 @@ internal object SecretKeys {
                 // Note that not every byte array can be convert to the specific encoding string
                 //  (would be garbled), so we have to convert byte array to an
                 //  convertible format (via encrypter) and then convert it to string.
-                val secret = value?.let(encrypter::encrypt)?.toString(charset)
+                val secret = value?.let(encoder::encode)?.toString(charset)
                 // Important: use synchronized `commit` instead of `apply` to make sure any
                 //  failure during saving this key would not be ignored.
                 val result = preferences.edit()
@@ -79,7 +79,7 @@ internal object SecretKeys {
                     // Convert string to byte array.
                     // Since the string is encrypted by the given encrypter, we have to decrypt it
                     //  before convert to string.
-                    decrypter.decrypt(this.toByteArray(charset))
+                    decoder.decode(this.toByteArray(charset))
                 }
             }
 

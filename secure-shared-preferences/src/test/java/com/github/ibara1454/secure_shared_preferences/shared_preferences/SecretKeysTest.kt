@@ -82,11 +82,11 @@ class SecretKeysConfigTest {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } returns null
 
-        val encrypter = mockk<Encrypter<SecretKey>>()
+        val encoder = mockk<Encoder<SecretKey>>()
 
-        val decrypter = mockk<Decrypter<SecretKey>>()
+        val decoder = mockk<Decoder<SecretKey>>()
 
-        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        val config = SecretKeys.SecretKeysConfig(preferences, encoder, decoder)
         val actual = config.secretKey
 
         assertThat(actual).isNull()
@@ -97,11 +97,11 @@ class SecretKeysConfigTest {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } returns ""
 
-        val encrypter = mockk<Encrypter<SecretKey>>()
+        val encoder = mockk<Encoder<SecretKey>>()
 
-        val decrypter = mockk<Decrypter<SecretKey>>()
+        val decoder = mockk<Decoder<SecretKey>>()
 
-        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        val config = SecretKeys.SecretKeysConfig(preferences, encoder, decoder)
         val actual = config.secretKey
 
         assertThat(actual).isNull()
@@ -113,15 +113,15 @@ class SecretKeysConfigTest {
         val key = "dummy key".toByteArray()
         every { preferences.getString(any(), any()) } returns (key + 0x0.toByte()).toString(Charsets.UTF_8)
 
-        val encrypter = mockk<Encrypter<SecretKey>>()
+        val encoder = mockk<Encoder<SecretKey>>()
 
-        val decrypter = mockk<Decrypter<SecretKey>>()
-        every { decrypter.decrypt(any()) } answers {
+        val decoder = mockk<Decoder<SecretKey>>()
+        every { decoder.decode(any()) } answers {
             val bytes = firstArg<ByteArray>()
             bytes.take(bytes.size - 1).toByteArray()
         }
 
-        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        val config = SecretKeys.SecretKeysConfig(preferences, encoder, decoder)
         val actual = config.secretKey
 
         assertThat(actual).isEqualTo(key)
@@ -136,12 +136,12 @@ class SecretKeysConfigTest {
         every { editor.putString(any(), any()) } returns editor
         every { editor.commit() } returns true
 
-        val encrypter = mockk<Encrypter<SecretKey>>()
-        every { encrypter.encrypt(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
+        val encoder = mockk<Encoder<SecretKey>>()
+        every { encoder.encode(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
 
-        val decrypter = mockk<Decrypter<SecretKey>>()
+        val decoder = mockk<Decoder<SecretKey>>()
 
-        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        val config = SecretKeys.SecretKeysConfig(preferences, encoder, decoder)
         config.secretKey = key
 
         verify {
@@ -159,12 +159,12 @@ class SecretKeysConfigTest {
         every { editor.putString(any(), any()) } returns editor
         every { editor.commit() } returns false
 
-        val encrypter = mockk<Encrypter<SecretKey>>()
-        every { encrypter.encrypt(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
+        val encoder = mockk<Encoder<SecretKey>>()
+        every { encoder.encode(any()) } answers { firstArg<ByteArray>() + 0x0.toByte() }
 
-        val decrypter = mockk<Decrypter<SecretKey>>()
+        val decoder = mockk<Decoder<SecretKey>>()
 
-        val config = SecretKeys.SecretKeysConfig(preferences, encrypter, decrypter)
+        val config = SecretKeys.SecretKeysConfig(preferences, encoder, decoder)
 
         try {
             config.secretKey = key

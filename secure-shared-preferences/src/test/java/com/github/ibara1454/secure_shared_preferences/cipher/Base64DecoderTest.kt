@@ -6,14 +6,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class Base64DecrypterTest {
+class Base64DecoderTest {
     @Test
-    fun test_decrypt_convert_simple_text_to_cipher_text() {
-        val decrypter = Base64Decrypter()
+    fun test_decode_convert_simple_text_to_cipher_text() {
+        val decoder = Base64Decoder()
 
         val input = "aGVsbG8gd29ybGQ=".toByteArray() // "hello world"
 
-        val actual = decrypter.decrypt(input)
+        val actual = decoder.decode(input)
 
         assertThat(actual).isEqualTo("hello world".toByteArray())
     }

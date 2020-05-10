@@ -10,6 +10,6 @@ internal class SymmetricKeyEncryptedSharedPreferences @Throws(Exception::class) 
     key: SecretKey
 ) : SharedPreferences by EncryptedSharedPreferences(
     storage = storage,
-    encrypter = StringEncrypter(Base64Encrypter()::encrypt compose AESEncrypter(key)::encrypt),
-    decrypter = StringDecrypter(AESDecrypter(key)::decrypt compose Base64Decrypter()::decrypt)
+    encrypter = StringEncrypter(Base64Encoder()::encode compose AESEncrypter(key)::encrypt),
+    decrypter = StringDecrypter(AESDecrypter(key)::decrypt compose Base64Decoder()::decode)
 )
