@@ -58,7 +58,7 @@ internal class EncryptableSharedPreferences(
                     "int" -> decrypt(dValue).toInt()
                     "long" -> decrypt(dValue).toLong()
                     "string" -> decrypt(dValue)
-                    "stringset" -> decrypt(dValue).split(";").toMutableSet()
+                    "stringset" -> decrypt(dValue).split("8u^K>LK*O4").toMutableSet()
                     else -> null
                 }
             name to value
@@ -170,7 +170,10 @@ internal class EncryptableSharedPreferences(
         return if (crypto == null) {
             defValues
         } else {
-            val values = decrypt(crypto).split(";")
+            // An random generate string.
+            // The random string is complex enough so it would not disturb the given data.
+            val delimiter = "8u^K>LK*O4"
+            val values = decrypt(crypto).split(delimiter)
             values.toMutableSet()
         }
     }
@@ -350,10 +353,12 @@ internal class EncryptableSharedPreferences(
          */
         override fun putStringSet(key: String?, values: MutableSet<String>?): SharedPreferences.Editor {
             // FIXME: choose separator dependent on value dynamically
-            val separator = ";"
+            // An random generate string.
+            // The random string is complex enough so it would not disturb the given data.
+            val separator = "8u^K>LK*O4"
             return editor.putString(
                 key?.let { encrypt("stringset_$key") } ,
-                values?.joinToString(separator = separator)?.let(encrypt)
+                values?.joinToString(separator)?.let(encrypt)
             )
         }
 

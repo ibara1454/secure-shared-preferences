@@ -60,7 +60,7 @@ class EncryptableSharedPreferencesTest {
             "int_name3" to "3",
             "long_name4" to "4",
             "string_name5" to "5",
-            "stringset_name6" to "6;7;8"
+            "stringset_name6" to "68u^K>LK*O478u^K>LK*O48"
         )
 
         val encrypter = mockk<Encrypter<String>>()
@@ -271,7 +271,7 @@ class EncryptableSharedPreferencesTest {
         every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
         val decrypter = mockk<Decrypter<String>>()
-        every { decrypter.decrypt("encrypted_stringset_value") } answers { "1;2;3" }
+        every { decrypter.decrypt("encrypted_stringset_value") } answers { "18u^K>LK*O428u^K>LK*O43" }
 
         val sharedPrefs = EncryptableSharedPreferences(preferences, encrypter, decrypter)
         val actual = sharedPrefs.getStringSet("name", null)
@@ -486,8 +486,8 @@ class EditorImplTest {
 
         verifyAll {
             encrypter.encrypt("stringset_name")
-            encrypter.encrypt("1;2;3")
-            nativeEditor.putString("encrypted_stringset_name", "encrypted_1;2;3")
+            encrypter.encrypt("18u^K>LK*O428u^K>LK*O43")
+            nativeEditor.putString("encrypted_stringset_name", "encrypted_18u^K>LK*O428u^K>LK*O43")
         }
     }
 
