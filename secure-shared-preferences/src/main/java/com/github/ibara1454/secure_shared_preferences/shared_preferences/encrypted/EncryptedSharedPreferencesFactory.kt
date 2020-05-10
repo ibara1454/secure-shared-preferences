@@ -1,4 +1,4 @@
-package com.github.ibara1454.secure_shared_preferences.shared_preferences
+package com.github.ibara1454.secure_shared_preferences.shared_preferences.encrypted
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.SharedPreferencesFactory
 
 /**
  * The factory class which creates the encrypted shared preferences.
@@ -15,7 +16,8 @@ import androidx.security.crypto.MasterKeys
  * @param context any application context or activity context.
  */
 @RequiresApi(Build.VERSION_CODES.M)
-class EncryptedSharedPreferencesFactory(private val context: Context): SharedPreferencesFactory {
+class EncryptedSharedPreferencesFactory(private val context: Context):
+    SharedPreferencesFactory {
     /**
      * Creates encrypted shared preferences.
      *

@@ -6,9 +6,13 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * An implementation of [SharedPreferences] that encrypts keys and values.
+ *
+ * @param preferences any [SharedPreferences] used for save / read values.
+ * @param encrypter an encrypter transforms plain text to encrypted text.
+ * @param decrypter an decrypter transforms encrypted text to plain text.
  */
-internal class EncryptedSharedPreferences(
-    private val storage: SharedPreferences,
+internal class EncryptableSharedPreferences(
+    private val preferences: SharedPreferences,
     private val encrypter: Encrypter<String>,
     decrypter: Decrypter<String>
 ): SharedPreferences {
@@ -16,16 +20,33 @@ internal class EncryptedSharedPreferences(
 
     private val decrypt = decrypter::decrypt
 
-    override fun contains(name: String?): Boolean {
-        return storage.contains(name?.let(encrypt))
+    /**
+     * Checks whether the preferences contains a preference.
+     *
+     * @param key the name of the preference to check.
+     * @return returns true if the preference exists in the preferences,
+     *  otherwise false.
+     */
+    override fun contains(key: String?): Boolean {
+        return preferences.contains(key?.let(encrypt))
     }
 
+    /**
+     * Create a new Editor for these preferences.
+     * @return returns a new instance of the [SharedPreferences.Editor] interface, allowing
+     * you to modify the values in this SharedPreferences object.
+     */
     override fun edit(): SharedPreferences.Editor {
-        return EditorImpl(storage.edit(), encrypter)
+        return EditorImpl(preferences.edit(), encrypter)
     }
 
+    /**
+     * Retrieve all values from the preferences.
+     * @return returns a map containing a list of pairs key/value representing
+     * the preferences.
+     */
     override fun getAll(): MutableMap<String, *> {
-        val entries = storage.all.entries.map {
+        val entries = preferences.all.entries.map {
             val tName = decrypt(it.key)
             val type = tName.substringBefore("_")
             val name = tName.substringAfter("_")
@@ -45,9 +66,17 @@ internal class EncryptedSharedPreferences(
         return mutableMapOf(*entries)
     }
 
-    override fun getBoolean(name: String?, defValue: Boolean): Boolean {
-        val tName = name?.let { encrypt("boolean_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve a boolean value from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValue value to return if this preference does not exist.
+     * @return returns the preference value if it exists, or defValue.
+     * @throws ClassCastException if there is a preference with this name that is not a boolean.
+     */
+    override fun getBoolean(key: String?, defValue: Boolean): Boolean {
+        val tName = key?.let { encrypt("boolean_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
@@ -55,9 +84,17 @@ internal class EncryptedSharedPreferences(
         }
     }
 
-    override fun getFloat(name: String?, defValue: Float): Float {
-        val tName = name?.let { encrypt("float_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve a float value from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValue value to return if this preference does not exist.
+     * @return returns the preference value if it exists, or defValue.
+     * @throws ClassCastException if there is a preference with this name that is not an float.
+     */
+    override fun getFloat(key: String?, defValue: Float): Float {
+        val tName = key?.let { encrypt("float_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
@@ -65,9 +102,17 @@ internal class EncryptedSharedPreferences(
         }
     }
 
-    override fun getInt(name: String?, defValue: Int): Int {
-        val tName = name?.let { encrypt("int_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve an int value from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValue value to return if this preference does not exist.
+     * @return returns the preference value if it exists, or defValue.
+     * @throws ClassCastException if there is a preference with this name that is not an int.
+     */
+    override fun getInt(key: String?, defValue: Int): Int {
+        val tName = key?.let { encrypt("int_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
@@ -75,9 +120,17 @@ internal class EncryptedSharedPreferences(
         }
     }
 
-    override fun getLong(name: String?, defValue: Long): Long {
-        val tName = name?.let { encrypt("long_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve a long value from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValue value to return if this preference does not exist.
+     * @return returns the preference value if it exists, or defValue.
+     * @throws ClassCastException if there is a preference with this name that is not a long.
+     */
+    override fun getLong(key: String?, defValue: Long): Long {
+        val tName = key?.let { encrypt("long_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
@@ -85,9 +138,17 @@ internal class EncryptedSharedPreferences(
         }
     }
 
-    override fun getString(name: String?, defValue: String?): String? {
-        val tName = name?.let { encrypt("string_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve a String value from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValue value to return if this preference does not exist.
+     * @return returns the preference value if it exists, or defValue.
+     * @throws ClassCastException if there is a preference with this name that is not a String.
+     */
+    override fun getString(key: String?, defValue: String?): String? {
+        val tName = key?.let { encrypt("string_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
@@ -95,17 +156,31 @@ internal class EncryptedSharedPreferences(
         }
     }
 
-    override fun getStringSet(name: String?, defValue: MutableSet<String>?): MutableSet<String>? {
-        val tName = name?.let { encrypt("stringset_$name") }
-        val crypto = storage.getString(tName, null)
+    /**
+     * Retrieve a set of String values from the preferences.
+     *
+     * @param key the name of the preference to retrieve.
+     * @param defValues values to return if this preference does not exist.
+     * @return returns the preference values if they exist, or defValues.
+     * @throws ClassCastException if there is a preference with this name that is not a Set.
+     */
+    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
+        val tName = key?.let { encrypt("stringset_$key") }
+        val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
-            defValue
+            defValues
         } else {
             val values = decrypt(crypto).split(";")
             values.toMutableSet()
         }
     }
 
+    /**
+     * Registers a callback to be invoked when a change happens to a preference.
+     *
+     * @param listener the callback will triggered on data changes.
+     * @see [unregisterOnSharedPreferenceChangeListener]
+     */
     override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
         if (listener != null) {
             val encryptListener = SharedPreferences.OnSharedPreferenceChangeListener { _, crypto ->
@@ -114,13 +189,19 @@ internal class EncryptedSharedPreferences(
                 listener.onSharedPreferenceChanged(this, name)
             }
             listenerMap[listener] = encryptListener
-            storage.registerOnSharedPreferenceChangeListener(encryptListener)
+            preferences.registerOnSharedPreferenceChangeListener(encryptListener)
         }
     }
 
+    /**
+     * Unregisters a previous callback.
+     *
+     * @param listener the callback that should be unregistered.
+     * @see [registerOnSharedPreferenceChangeListener]
+     */
     override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
         val encryptListener = listenerMap[listener]
-        storage.unregisterOnSharedPreferenceChangeListener(encryptListener)
+        preferences.unregisterOnSharedPreferenceChangeListener(encryptListener)
         listenerMap.remove(listener)
     }
 
@@ -131,71 +212,163 @@ internal class EncryptedSharedPreferences(
             = ConcurrentHashMap()
     }
 
+    /**
+     * The editor implementation for [EncryptableSharedPreferences].
+     *
+     * @param editor the editor received from [preferences].
+     * @param encrypter an encrypter transforms plain text to encrypted text.
+     */
     internal class EditorImpl(
         private val editor: SharedPreferences.Editor,
         encrypter: Encrypter<String>
     ): SharedPreferences.Editor {
         private val encrypt = encrypter::encrypt
 
+        /**
+         * Commit your preferences changes back from this Editor to the
+         * [SharedPreferences] object it is editing. This atomically
+         * performs the requested modifications, replacing whatever is currently
+         * in the SharedPreferences.
+         */
         override fun apply() {
             editor.apply()
         }
 
+        /**
+         * Mark in the editor to remove *all* values from the
+         * preferences.  Once commit is called, the only remaining preferences
+         * will be any that you have defined in this editor.
+         */
         override fun clear(): SharedPreferences.Editor {
             return editor.clear()
         }
 
+        /**
+         * Commit your preferences changes back from this Editor to the
+         * [SharedPreferences] object it is editing.  This atomically
+         * performs the requested modifications, replacing whatever is currently
+         * in the SharedPreferences.
+         */
         override fun commit(): Boolean {
             return editor.commit()
         }
 
-        override fun putBoolean(name: String?, value: Boolean): SharedPreferences.Editor {
+        /**
+         * Set a boolean value in the preferences editor, to be written back once
+         * [commit] or [apply] are called.
+         *
+         * @param key the name of the preference to modify.
+         * @param value the new value for the preference.
+         * @return returns a reference to the same Editor object, so you can
+         * chain put calls together.
+         */
+        override fun putBoolean(key: String?, value: Boolean): SharedPreferences.Editor {
             return editor.putString(
-                name?.let { encrypt("boolean_$name") } ,
+                key?.let { encrypt("boolean_$key") } ,
                 value.toString().let(encrypt)
             )
         }
 
-        override fun putFloat(name: String?, value: Float): SharedPreferences.Editor {
+        /**
+         * Set a float value in the preferences editor, to be written back once
+         * [commit] or [apply] are called.
+         *
+         * @param key the name of the preference to modify.
+         * @param value the new value for the preference.
+         *
+         * @return returns a reference to the same Editor object, so you can
+         * chain put calls together.
+         */
+        override fun putFloat(key: String?, value: Float): SharedPreferences.Editor {
             // TODO: use scientific notation to convert to string instead
             return editor.putString(
-                name?.let { encrypt("float_$name") } ,
+                key?.let { encrypt("float_$key") } ,
                 value.toString().let(encrypt)
             )
         }
 
-        override fun putInt(name: String?, value: Int): SharedPreferences.Editor {
+        /**
+         * Set an int value in the preferences editor, to be written back once
+         * [commit] or [apply] are called.
+         *
+         * @param key the name of the preference to modify.
+         * @param value the new value for the preference.
+         * @return returns a reference to the same Editor object, so you can
+         *  chain put calls together.
+         */
+        override fun putInt(key: String?, value: Int): SharedPreferences.Editor {
             return editor.putString(
-                name?.let { encrypt("int_$name") } ,
+                key?.let { encrypt("int_$key") } ,
                 value.toString().let(encrypt)
             )
         }
 
-        override fun putLong(name: String?, value: Long): SharedPreferences.Editor {
+        /**
+         * Set a long value in the preferences editor, to be written back once
+         * [commit] or [apply] are called.
+         *
+         * @param key the name of the preference to modify.
+         * @param value the new value for the preference.
+         * @return returns a reference to the same Editor object, so you can
+         *  chain put calls together.
+         */
+        override fun putLong(key: String?, value: Long): SharedPreferences.Editor {
             return editor.putString(
-                name?.let { encrypt("long_$name") } ,
+                key?.let { encrypt("long_$key") } ,
                 value.toString().let(encrypt)
             )
         }
 
-        override fun putString(name: String?, value: String?): SharedPreferences.Editor {
+        /**
+         * Set a String value in the preferences editor, to be written back once
+         * [commit] or [apply] are called.
+         *
+         * @param key the name of the preference to modify.
+         * @param value the new value for the preference. Passing `null`
+         *  for this argument is equivalent to calling [remove] with
+         *  this key.
+         * @return returns a reference to the same Editor object, so you can
+         *  chain put calls together.
+         */
+        override fun putString(key: String?, value: String?): SharedPreferences.Editor {
             return editor.putString(
-                name?.let { encrypt("string_$name") } ,
+                key?.let { encrypt("string_$key") } ,
                 value?.let(encrypt)
             )
         }
 
-        override fun putStringSet(name: String?, value: MutableSet<String>?): SharedPreferences.Editor {
+        /**
+         * Set a set of String values in the preferences editor, to be written
+         * back once [commit] or [apply] is called.
+         *
+         * @param key the name of the preference to modify.
+         * @param values the set of new values for the preference.  Passing `null`
+         *  for this argument is equivalent to calling [remove] with
+         *  this key.
+         * @return returns a reference to the same Editor object, so you can
+         * chain put calls together.
+         */
+        override fun putStringSet(key: String?, values: MutableSet<String>?): SharedPreferences.Editor {
             // FIXME: choose separator dependent on value dynamically
             val separator = ";"
             return editor.putString(
-                name?.let { encrypt("stringset_$name") } ,
-                value?.joinToString(separator = separator)?.let(encrypt)
+                key?.let { encrypt("stringset_$key") } ,
+                values?.joinToString(separator = separator)?.let(encrypt)
             )
         }
 
-        override fun remove(name: String?): SharedPreferences.Editor {
-            return editor.remove(name?.let(encrypt))
+        /**
+         * Mark in the editor that a preference value should be removed, which
+         * will be done in the actual preferences once [commit] is
+         * called.
+         *
+         * @param key the name of the preference to remove.
+         * @return returns a reference to the same Editor object, so you can
+         * chain put calls together.
+         */
+        override fun remove(key: String?): SharedPreferences.Editor {
+            // FIXME: this implementation does not work
+            return editor.remove(key?.let(encrypt))
         }
     }
 }

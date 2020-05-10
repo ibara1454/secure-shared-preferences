@@ -1,15 +1,16 @@
-package com.github.ibara1454.secure_shared_preferences.shared_preferences
+package com.github.ibara1454.secure_shared_preferences.shared_preferences.safe
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.github.ibara1454.secure_shared_preferences.secret.SecretKeys
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.SharedPreferencesFactory
 import java.io.IOException
 
-internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context: Context):
+internal class SafeSharedPreferencesFactory(private val context: Context):
     SharedPreferencesFactory
 {
     /**
-     * Create a [SymmetricKeyEncryptedSharedPreferences].
+     * Create a [SafeSharedPreferences].
      *
      * @param name Name of preferences.
      * @param mode Operating mode. This parameter is same as the mode parameter in normal
@@ -23,7 +24,7 @@ internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context
         val key = SecretKeys.getOrCreate(context)
 
         val preferences = context.getSharedPreferences(name, mode)
-        return SymmetricKeyEncryptedSharedPreferences(
+        return SafeSharedPreferences(
             preferences,
             key
         )

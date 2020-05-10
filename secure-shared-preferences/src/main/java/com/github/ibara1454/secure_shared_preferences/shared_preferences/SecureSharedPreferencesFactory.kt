@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.VisibleForTesting
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.encrypted.EncryptedSharedPreferencesFactory
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferencesFactory
 import java.io.IOException
 
 internal class SecureSharedPreferencesFactory(
@@ -27,10 +29,14 @@ internal class SecureSharedPreferencesFactory(
             EncryptType.NONE -> context.getSharedPreferences(name, mode)
             EncryptType.SAFE ->
                 // TODO: catch exceptions thrown from create
-                SymmetricKeyEncryptedSharedPreferencesFactory(context).create(name, mode)
+                SafeSharedPreferencesFactory(
+                    context
+                ).create(name, mode)
             EncryptType.KEYSTORE -> {
                 // TODO: catch exceptions thrown from EncryptedSharedPreferences.create
-                EncryptedSharedPreferencesFactory(context).create(name, mode)
+                EncryptedSharedPreferencesFactory(
+                    context
+                ).create(name, mode)
             }
         }
 

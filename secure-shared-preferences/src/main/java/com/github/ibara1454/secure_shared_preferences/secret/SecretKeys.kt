@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
 import com.github.ibara1454.secure_shared_preferences.cipher.*
-import com.github.ibara1454.secure_shared_preferences.shared_preferences.SymmetricKeyEncryptedSharedPreferences
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferences
 import java.io.IOException
 
 /**
@@ -19,7 +19,7 @@ internal object SecretKeys {
     @VisibleForTesting
     fun getConfig(preferences: SharedPreferences): SecretKeysConfig {
         return SecretKeysConfig(
-            SymmetricKeyEncryptedSharedPreferences(
+            SafeSharedPreferences(
                 preferences,
                 configSecretKey
             )
