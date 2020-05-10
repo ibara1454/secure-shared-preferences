@@ -7,6 +7,9 @@ import com.github.ibara1454.secure_shared_preferences.cipher.*
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.SymmetricKeyEncryptedSharedPreferences
 import java.io.IOException
 
+/**
+ * This class provides [getOrCreate] method to return secret keys.
+ */
 internal object SecretKeys {
     // Generator for generating 128-bit length secret key
     @VisibleForTesting
@@ -23,6 +26,15 @@ internal object SecretKeys {
         )
     }
 
+    /**
+     * Returns a secret key.
+     * If a secret key is already exists in storage, then this method will just return the key.
+     * If there are no key exists in storage, then this method will create a new key and then save
+     * it into storage. And then return such secret key.
+     *
+     * @param context any application context or activity context.
+     * @return a new secret key or the exists secret key.
+     */
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
     fun getOrCreate(context: Context): SecretKey {
