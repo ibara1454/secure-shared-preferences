@@ -367,8 +367,14 @@ internal class EncryptableSharedPreferences(
          * chain put calls together.
          */
         override fun remove(key: String?): SharedPreferences.Editor {
-            // FIXME: this implementation does not work
-            return editor.remove(key?.let(encrypt))
+            // FIXME: this implementation does not work well
+            if (key != null) {
+                // Try remove all combinations of (type, key)
+                listOf("boolean", "float", "int", "long", "string", "stringset")
+                    .map { "${it}_${key}" }
+                    .forEach { editor.remove(encrypt(it)) }
+            }
+            return editor
         }
     }
 }

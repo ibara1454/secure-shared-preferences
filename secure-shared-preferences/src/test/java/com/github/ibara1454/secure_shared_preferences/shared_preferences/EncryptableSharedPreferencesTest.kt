@@ -529,13 +529,22 @@ class EditorImplTest {
     @Test
     fun test_remove_is_transparently() {
         val encrypter = mockk<Encrypter<String>>()
+        every { encrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
 
         val nativeEditor = mockk<SharedPreferences.Editor>()
-        every { nativeEditor.clear() } returns nativeEditor
+        every { nativeEditor.remove(any()) } returns nativeEditor
 
+        val name = "name"
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, encrypter)
-        editor.clear()
+        editor.remove(name)
 
-        verify(exactly = 1) { nativeEditor.clear() }
+        verify {
+            nativeEditor.remove("encrypted_boolean_name")
+            nativeEditor.remove("encrypted_float_name")
+            nativeEditor.remove("encrypted_int_name")
+            nativeEditor.remove("encrypted_long_name")
+            nativeEditor.remove("encrypted_string_name")
+            nativeEditor.remove("encrypted_stringset_name")
+        }
     }
 }
