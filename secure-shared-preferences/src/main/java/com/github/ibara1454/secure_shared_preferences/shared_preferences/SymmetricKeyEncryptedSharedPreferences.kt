@@ -3,6 +3,7 @@ package com.github.ibara1454.secure_shared_preferences.shared_preferences
 import android.content.SharedPreferences
 import com.github.ibara1454.secure_shared_preferences.cipher.*
 import com.github.ibara1454.secure_shared_preferences.compose
+import com.github.ibara1454.secure_shared_preferences.secret.SecretKey
 
 // TODO: replace this exception by domain specific exception
 internal class SymmetricKeyEncryptedSharedPreferences @Throws(Exception::class) constructor(

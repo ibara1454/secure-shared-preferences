@@ -1,21 +1,25 @@
-package com.github.ibara1454.secure_shared_preferences.shared_preferences
+package com.github.ibara1454.secure_shared_preferences.secret
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
-import com.github.ibara1454.secure_shared_preferences.SecretGenerator
 import com.github.ibara1454.secure_shared_preferences.cipher.*
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.SymmetricKeyEncryptedSharedPreferences
 import java.io.IOException
 
 internal object SecretKeys {
     // Generator for generating 128-bit length secret key
     @VisibleForTesting
-    fun getSecretGenerator() = SecretGenerator()
+    fun getSecretGenerator() =
+        SecretGenerator()
 
     @VisibleForTesting
     fun getConfig(preferences: SharedPreferences): SecretKeysConfig {
         return SecretKeysConfig(
-            SymmetricKeyEncryptedSharedPreferences(preferences, configSecretKey)
+            SymmetricKeyEncryptedSharedPreferences(
+                preferences,
+                configSecretKey
+            )
         )
     }
 
@@ -23,10 +27,14 @@ internal object SecretKeys {
     @Throws(IOException::class)
     fun getOrCreate(context: Context): SecretKey {
         val preferences = context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
-        val config = getConfig(preferences)
+        val config =
+            getConfig(
+                preferences
+            )
         // Read a existing secret key from config.
         // If there is no secret key exists. Then generates a new key and save it into config.
-        return config.secretKey ?: getSecretGenerator().generate().also {
+        return config.secretKey ?: getSecretGenerator()
+            .generate().also {
             // Save new key into config
             config.secretKey = it
         }

@@ -1,6 +1,5 @@
-package com.github.ibara1454.secure_shared_preferences
+package com.github.ibara1454.secure_shared_preferences.secret
 
-import com.github.ibara1454.secure_shared_preferences.shared_preferences.SecretKey
 import java.security.SecureRandom
 
 class SecretGenerator {

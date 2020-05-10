@@ -2,6 +2,7 @@ package com.github.ibara1454.secure_shared_preferences.shared_preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.github.ibara1454.secure_shared_preferences.secret.SecretKeys
 import java.io.IOException
 
 internal class SymmetricKeyEncryptedSharedPreferencesFactory(private val context: Context):
