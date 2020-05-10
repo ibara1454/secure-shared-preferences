@@ -15,7 +15,7 @@ internal class SecureSharedPreferencesFactory(
         get() =
             // https://stackoverflow.com/questions/3993924/get-android-api-level-of-phone-currently-running-my-application
             when (Build.VERSION.SDK_INT) {
-                in Build.VERSION_CODES.BASE..Build.VERSION_CODES.LOLLIPOP_MR1 -> EncryptType.AES
+                in Build.VERSION_CODES.BASE..Build.VERSION_CODES.LOLLIPOP_MR1 -> EncryptType.SAFE
                 else -> EncryptType.KEYSTORE
             }
 
@@ -24,8 +24,8 @@ internal class SecureSharedPreferencesFactory(
     @Throws(IOException::class)
     fun create(name: String, mode: Int, type: EncryptType): SharedPreferences =
         when (type) {
-            EncryptType.NORMAL -> context.getSharedPreferences(name, mode)
-            EncryptType.AES ->
+            EncryptType.NONE -> context.getSharedPreferences(name, mode)
+            EncryptType.SAFE ->
                 // TODO: catch exceptions thrown from create
                 SymmetricKeyEncryptedSharedPreferencesFactory(context).create(name, mode)
             EncryptType.KEYSTORE -> {
@@ -43,7 +43,7 @@ internal class SecureSharedPreferencesFactory(
         } catch (e: IOException) {
             // If type is equals to `Normal`, there is no lower encryption type and then throw
             //  exception.
-            if (type == EncryptType.NORMAL) {
+            if (type == EncryptType.NONE) {
                 // TODO: replace this exception by domain specific exception
                 throw e
             }
@@ -105,8 +105,8 @@ internal class SecureSharedPreferencesFactory(
                     null
                 } else {
                     when (this) {
-                        EncryptType.NORMAL.name -> EncryptType.NORMAL
-                        EncryptType.AES.name -> EncryptType.AES
+                        EncryptType.NONE.name -> EncryptType.NONE
+                        EncryptType.SAFE.name -> EncryptType.SAFE
                         EncryptType.KEYSTORE.name -> EncryptType.KEYSTORE
                         else -> null
                     }
