@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.ibara1454.secure_shared_preferences.cipher.*
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SecretKeys
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
 import org.junit.Test

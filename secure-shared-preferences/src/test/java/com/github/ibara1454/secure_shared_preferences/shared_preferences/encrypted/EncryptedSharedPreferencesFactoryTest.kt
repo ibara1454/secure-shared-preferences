@@ -1,10 +1,10 @@
-package com.github.ibara1454.secure_shared_preferences.shared_preferences
+package com.github.ibara1454.secure_shared_preferences.shared_preferences.encrypted
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.github.ibara1454.secure_shared_preferences.shared_preferences.encrypted.EncryptedSharedPreferencesFactory
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.keystore.KeystoreEncryptedSharedPreferencesFactory
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferences
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferencesFactory
 import com.google.common.truth.Truth.assertThat
@@ -24,15 +24,19 @@ class SecureSharedPreferencesFactoryTest {
         mockkConstructor(SafeSharedPreferencesFactory::class)
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.NONE
-        val actual = SecureSharedPreferencesFactory(appContext, config).create(name, mode, type)
+        val type =
+            EncryptType.NONE
+        val actual = EncryptedSharedPreferencesFactory(
+            appContext,
+            config
+        ).create(name, mode, type)
 
         // Is instance of SharedPreferences
         assertThat(actual).isNotInstanceOf(SafeSharedPreferences::class.java)
@@ -40,7 +44,7 @@ class SecureSharedPreferencesFactoryTest {
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) wasNot Called
-            anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
         }
     }
 
@@ -49,22 +53,26 @@ class SecureSharedPreferencesFactoryTest {
         mockkConstructor(SafeSharedPreferencesFactory::class)
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.SAFE
-        val actual = SecureSharedPreferencesFactory(appContext, config).create(name, mode, type)
+        val type =
+            EncryptType.SAFE
+        val actual = EncryptedSharedPreferencesFactory(
+            appContext,
+            config
+        ).create(name, mode, type)
 
         assertThat(actual).isInstanceOf(SafeSharedPreferences::class.java)
         assertThat(actual).isNotInstanceOf(EncryptedSharedPreferences::class.java)
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(name, mode)
-            anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
         }
     }
 
@@ -73,22 +81,26 @@ class SecureSharedPreferencesFactoryTest {
         mockkConstructor(SafeSharedPreferencesFactory::class)
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE
-        val actual = SecureSharedPreferencesFactory(appContext, config).create(name, mode, type)
+        val type =
+            EncryptType.KEYSTORE
+        val actual = EncryptedSharedPreferencesFactory(
+            appContext,
+            config
+        ).create(name, mode, type)
 
         assertThat(actual).isNotInstanceOf(SafeSharedPreferences::class.java)
         assertThat(actual).isInstanceOf(EncryptedSharedPreferences::class.java)
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) wasNot Called
-            anyConstructed<EncryptedSharedPreferencesFactory>().create(name, mode)
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(name, mode)
         }
     }
 
@@ -98,17 +110,21 @@ class SecureSharedPreferencesFactoryTest {
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
         val exception = IOException()
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE
+        val type =
+            EncryptType.KEYSTORE
 
         try {
-            SecureSharedPreferencesFactory(appContext, config).create(name, mode, type)
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            ).create(name, mode, type)
             assertThat(true).isFalse() // This line should not be executed
         } catch (e: Exception) {
             assertThat(e).isInstanceOf(IOException::class.java)
@@ -116,7 +132,7 @@ class SecureSharedPreferencesFactoryTest {
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) wasNot Called
-            anyConstructed<EncryptedSharedPreferencesFactory>().create(name, mode)
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(name, mode)
         }
     }
 
@@ -126,16 +142,28 @@ class SecureSharedPreferencesFactoryTest {
         val safePref = mockk<SafeSharedPreferences>()
         val keystorePref = mockk<EncryptedSharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
-        every { factory.create(any(), any(), EncryptType.NONE) } returns nonePref
-        every { factory.create(any(), any(), EncryptType.SAFE) } returns safePref
-        every { factory.create(any(), any(), EncryptType.KEYSTORE) } returns keystorePref
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
+        every { factory.create(any(), any(),
+            EncryptType.NONE
+        ) } returns nonePref
+        every { factory.create(any(), any(),
+            EncryptType.SAFE
+        ) } returns safePref
+        every { factory.create(any(), any(),
+            EncryptType.KEYSTORE
+        ) } returns keystorePref
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
+        val type =
+            EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
         val (actualPref, actualType) = factory.tryCreate(name, mode, type)
 
         verify(exactly = 1) {
@@ -151,21 +179,37 @@ class SecureSharedPreferencesFactoryTest {
         val nonePref = mockk<SharedPreferences>()
         val safePref = mockk<SafeSharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
-        every { factory.create(any(), any(), EncryptType.NONE) } returns nonePref
-        every { factory.create(any(), any(), EncryptType.SAFE) } returns safePref
-        every { factory.create(any(), any(), EncryptType.KEYSTORE) } throws IOException()
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
+        every { factory.create(any(), any(),
+            EncryptType.NONE
+        ) } returns nonePref
+        every { factory.create(any(), any(),
+            EncryptType.SAFE
+        ) } returns safePref
+        every { factory.create(any(), any(),
+            EncryptType.KEYSTORE
+        ) } throws IOException()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
+        val type =
+            EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
         val (actualPref, actualType) = factory.tryCreate(name, mode, type)
 
         verify(exactly = 1) {
-            factory.create(name, mode, EncryptType.KEYSTORE)
-            factory.create(name, mode, EncryptType.SAFE)
+            factory.create(name, mode,
+                EncryptType.KEYSTORE
+            )
+            factory.create(name, mode,
+                EncryptType.SAFE
+            )
         }
 
         assertThat(actualPref).isEqualTo(safePref)
@@ -176,22 +220,40 @@ class SecureSharedPreferencesFactoryTest {
     fun test_tryCreate_returns_downgraded2_shared_preferences_if_error_thrown2() {
         val nonePref = mockk<SharedPreferences>()
 
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
-        every { factory.create(any(), any(), EncryptType.NONE) } returns nonePref
-        every { factory.create(any(), any(), EncryptType.SAFE) } throws IOException()
-        every { factory.create(any(), any(), EncryptType.KEYSTORE) } throws IOException()
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
+        every { factory.create(any(), any(),
+            EncryptType.NONE
+        ) } returns nonePref
+        every { factory.create(any(), any(),
+            EncryptType.SAFE
+        ) } throws IOException()
+        every { factory.create(any(), any(),
+            EncryptType.KEYSTORE
+        ) } throws IOException()
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
+        val type =
+            EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
         val (actualPref, actualType) = factory.tryCreate(name, mode, type)
 
         verify(exactly = 1) {
-            factory.create(name, mode, EncryptType.KEYSTORE)
-            factory.create(name, mode, EncryptType.SAFE)
-            factory.create(name, mode, EncryptType.NONE)
+            factory.create(name, mode,
+                EncryptType.KEYSTORE
+            )
+            factory.create(name, mode,
+                EncryptType.SAFE
+            )
+            factory.create(name, mode,
+                EncryptType.NONE
+            )
         }
 
         assertThat(actualPref).isEqualTo(nonePref)
@@ -200,18 +262,30 @@ class SecureSharedPreferencesFactoryTest {
 
     @Test
     fun test_tryCreate_throws_exception_if_all_creation_failed() {
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         val exception = IOException()
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
 
-        every { factory.create(any(), any(), EncryptType.NONE) } throws exception
-        every { factory.create(any(), any(), EncryptType.SAFE) } throws exception
-        every { factory.create(any(), any(), EncryptType.KEYSTORE) } throws exception
+        every { factory.create(any(), any(),
+            EncryptType.NONE
+        ) } throws exception
+        every { factory.create(any(), any(),
+            EncryptType.SAFE
+        ) } throws exception
+        every { factory.create(any(), any(),
+            EncryptType.KEYSTORE
+        ) } throws exception
 
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
+        val type =
+            EncryptType.KEYSTORE // you can choose either NORMAL, AES, or KEYSTORE
 
         try {
             factory.tryCreate(name, mode, type)
@@ -225,11 +299,17 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_returns_target_shared_preferences_if_currentEncryptType_exists_and_creation_succeeds() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val type =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
         every { config getProperty "currentEncryptType" } returns type
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
         val preferences = mockk<EncryptedSharedPreferences>()
         every { factory.create(name, mode, type) } returns preferences
 
@@ -246,11 +326,17 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_throws_exception_if_currentEncryptType_exists_and_creation_fails() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val type = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val type =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
         every { config getProperty "currentEncryptType" } returns type
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
         val exception = IOException()
         every { factory.create(name, mode, type) } throws exception
 
@@ -270,15 +356,22 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_returns_proper_shared_preferences_if_currentEncryptType_not_exists_and_creation_succeeds() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val targetType = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val targetType =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
         every { config getProperty "currentEncryptType" } returns null
         every { config setProperty "currentEncryptType" value any<EncryptType>() } just Runs
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
         every { factory getProperty "topEncryptType" } returns targetType
         val preferences = mockk<SafeSharedPreferences>()
-        val properType = EncryptType.NONE
+        val properType =
+            EncryptType.NONE
         every { factory.tryCreate(name, mode, targetType) } returns (preferences to properType)
 
         val actual = factory.create(name, mode)
@@ -295,12 +388,18 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_throws_exception_if_currentEncryptType_not_exists_and_creation_failed() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val targetType = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val targetType =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
         every { config getProperty "currentEncryptType" } returns null
         every { config setProperty "currentEncryptType" value any<EncryptType>() } just Runs
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
         every { factory getProperty "topEncryptType" } returns targetType
         val exception = IOException()
         every { factory.tryCreate(name, mode, targetType) } throws exception
@@ -326,22 +425,28 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_returns_specific_type_SharedPreferences() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val targetType = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val targetType =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         mockkConstructor(SafeSharedPreferencesFactory::class)
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
         val actual = factory.create(name, mode, targetType)
 
         assertThat(actual).isInstanceOf(EncryptedSharedPreferences::class.java)
 
         verify(exactly = 1) {
-            anyConstructed<EncryptedSharedPreferencesFactory>().create(name, mode)
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(name, mode)
         }
         verify(exactly = 0) {
             anyConstructed<SafeSharedPreferencesFactory>().create(any(), any())
@@ -352,17 +457,23 @@ class SecureSharedPreferencesFactoryTest {
     fun test_create_throws_exception_if_creation_failed() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
-        val targetType = EncryptType.KEYSTORE
-        val config = mockk<SecureSharedPreferencesFactory.SecureSharedPreferencesConfig>()
+        val targetType =
+            EncryptType.KEYSTORE
+        val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         mockkConstructor(SafeSharedPreferencesFactory::class)
         every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
 
         val exception = IOException()
-        mockkConstructor(EncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<EncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
+        mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
+        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
 
-        val factory = spyk(SecureSharedPreferencesFactory(appContext, config))
+        val factory = spyk(
+            EncryptedSharedPreferencesFactory(
+                appContext,
+                config
+            )
+        )
 
         try {
             factory.create(name, mode, targetType)
@@ -374,7 +485,7 @@ class SecureSharedPreferencesFactoryTest {
 }
 
 @RunWith(AndroidJUnit4::class)
-class SecureSharedPreferencesConfigTest {
+class EncryptedSharedPreferencesConfigTest {
 
     @Test
     fun test_currentEncryptType_get_returns_null_if_type_is_null() {
@@ -383,7 +494,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isNull()
@@ -396,7 +507,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isNull()
@@ -409,7 +520,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isEqualTo(EncryptType.NONE)
@@ -422,7 +533,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isEqualTo(EncryptType.SAFE)
@@ -435,7 +546,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isEqualTo(EncryptType.KEYSTORE)
@@ -448,7 +559,7 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
         val actual = config.currentEncryptType
 
         assertThat(actual).isNull()
@@ -464,8 +575,9 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
-        config.currentEncryptType = EncryptType.KEYSTORE
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
+        config.currentEncryptType =
+            EncryptType.KEYSTORE
 
         verify(exactly = 1) {
             editor.putString("encrypt_type", "KEYSTORE")
@@ -483,10 +595,11 @@ class SecureSharedPreferencesConfigTest {
         val context = spyk(InstrumentationRegistry.getInstrumentation().targetContext)
         every { context.getSharedPreferences(any(), any()) } returns preferences
 
-        val config = SecureSharedPreferencesFactory.SecureSharedPreferencesConfig(context)
+        val config = EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig(context)
 
         try {
-            config.currentEncryptType = EncryptType.KEYSTORE
+            config.currentEncryptType =
+                EncryptType.KEYSTORE
             assertThat(false).isTrue() // This line should not be executed
         } catch (e: Exception) {
             assertThat(e).isInstanceOf(IOException::class.java)
