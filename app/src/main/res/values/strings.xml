@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">secure-shared-preferences</string>
+
+    <string name="label_boolean">Boolean</string>
+    <string name="label_int">Int</string>
+    <string name="label_long">Long</string>
+    <string name="label_float">Float</string>
+    <string name="label_string">String</string>
+    <string name="label_string_set">StringSet</string>
+    <string name="label_all">All</string>
 </resources>
