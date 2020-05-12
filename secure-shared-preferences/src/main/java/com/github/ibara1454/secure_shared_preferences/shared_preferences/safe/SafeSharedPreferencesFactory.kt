@@ -22,7 +22,6 @@ internal class SafeSharedPreferencesFactory(private val context: Context):
     override fun create(name: String, mode: Int): SharedPreferences {
         val key = SecretKeys.getOrCreate(context)
 
-        val preferences = context.getSharedPreferences(name, mode)
         return SafeSharedPreferences(
             context,
             name,
