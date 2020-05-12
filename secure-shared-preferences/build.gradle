@@ -44,17 +44,24 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    testImplementation "org.robolectric:robolectric:4.3.1"
+    def robolectric_version = '4.3.1'
+    testImplementation "org.robolectric:robolectric:$robolectric_version"
 
     def security_version = '1.0.0-rc01'
     implementation "androidx.security:security-crypto:$security_version"
 
     testImplementation 'junit:junit:4.12'
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    testImplementation 'androidx.test.ext:junit:1.1.1'
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    testImplementation 'com.google.truth:truth:1.0'
+    androidTestImplementation 'junit:junit:4.12'
+
+    def android_test_version = '1.1.1'
+    testImplementation "androidx.test.ext:junit:$android_test_version"
+    androidTestImplementation "androidx.test.ext:junit:$android_test_version"
+
+    def truth_version = '1.0'
+    testImplementation "com.google.truth:truth:$truth_version"
+    androidTestImplementation "com.google.truth:truth:$truth_version"
 
     def mockk_version = '1.9.3'
     testImplementation "io.mockk:mockk:$mockk_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockk_version"
 }
