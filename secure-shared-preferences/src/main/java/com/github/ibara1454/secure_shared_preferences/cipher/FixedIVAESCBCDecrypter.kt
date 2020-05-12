@@ -40,7 +40,7 @@ constructor(secretKey: ByteArray, iv: ByteArray): Decrypter<ByteArray> {
         val secretKeySpec = SecretKeySpec(secretKey, "AES")
         // The 128-bit length iv
         val ivSpec = IvParameterSpec(iv)
-        decrypter.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
+        decrypter.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
     }
 
     /**
