@@ -63,6 +63,9 @@ import com.github.ibara1454.secure_shared_preferences.shared_preferences.SharedP
  * @return Encrypted [SharedPreferences].
  */
 fun Context.getSecureSharedPreferences(name: String, mode: Int): SharedPreferences {
-    val factory: SharedPreferencesFactory = SecureSharedPreferencesFactory(this)
+    val factory: SharedPreferencesFactory =
+        SecureSharedPreferencesFactory(
+            this
+        )
     return factory.create(name, mode)
 }
