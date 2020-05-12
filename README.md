@@ -12,7 +12,24 @@ The encrypted SharedPreferences for Android.
 
 ## Installation
 
-TBD.
+Add it in your root `build.gradle` at the end of repositories:
+
+```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+Add the dependency.
+
+```groovy
+dependencies {
+    implementation 'com.github.ibara1454:secure-shared-preferences:v0.1.0'
+}
+```
 
 ## Usage
 
