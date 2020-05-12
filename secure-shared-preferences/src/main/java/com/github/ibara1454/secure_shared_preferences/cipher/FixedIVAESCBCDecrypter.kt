@@ -5,6 +5,23 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
+/**
+ * The decrypter using AES-CBC algorithm with fixed initial vector.
+ *
+ * Note that you should not reuse the IV if possible.
+ * Reusing the IV is that if two messages begin with the same sequence
+ * of bytes then the encrypted messages will also be identical for a few blocks.
+ * This leaks data and opens the possibility of some attacks.
+ *
+ * This class can decrypt the crypto built by [AESEncrypter].
+ * To do this, you should use the same 16-byte secret key as the key in [AESEncrypter] to construct
+ * the decrypter.
+ *
+ * @param secretKey the 16-byte secret key using in decryption.
+ * @param iv the 16-byte initial vector using in decryption.
+ * @throws InvalidSpecificationException if the platform does not support the transformation.
+ * @throws InvalidKeyException if the secret key is not 16 bytes.
+ */
 class FixedIVAESCBCDecrypter
 @Throws(InvalidSpecificationException::class, InvalidKeyException::class)
 constructor(secretKey: ByteArray, iv: ByteArray): Decrypter<ByteArray> {

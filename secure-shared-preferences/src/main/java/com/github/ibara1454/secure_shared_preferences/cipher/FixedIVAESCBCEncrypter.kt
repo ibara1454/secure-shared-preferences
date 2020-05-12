@@ -19,10 +19,10 @@ import javax.crypto.spec.SecretKeySpec
  * To decrypt the encrypted text, you could use the [AESDecrypter] class.
  *
  * @param secretKey the 16-byte secret key using in encryption.
+ * @param iv the 16-byte initial vector using in encryption.
  * @throws InvalidKeyException if the secret key is not 16 bytes.
  * @throws InvalidSpecificationException if the platform does not support the transformation.
  */
-
 class FixedIVAESCBCEncrypter
 @Throws(InvalidSpecificationException::class, InvalidKeyException::class, InvalidIVException::class)
 constructor(secretKey: ByteArray, iv: ByteArray): Encrypter<ByteArray> {
