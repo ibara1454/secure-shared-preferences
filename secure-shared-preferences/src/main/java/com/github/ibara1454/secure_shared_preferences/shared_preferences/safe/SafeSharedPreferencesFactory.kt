@@ -24,7 +24,9 @@ internal class SafeSharedPreferencesFactory(private val context: Context):
 
         val preferences = context.getSharedPreferences(name, mode)
         return SafeSharedPreferences(
-            preferences,
+            context,
+            name,
+            mode,
             key
         )
     }

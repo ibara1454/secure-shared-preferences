@@ -18,10 +18,12 @@ internal object SecretKeys {
         SecretGenerator()
 
     @VisibleForTesting
-    fun getConfig(preferences: SharedPreferences): SecretKeysConfig {
+    fun getConfig(context: Context): SecretKeysConfig {
         return SecretKeysConfig(
             SafeSharedPreferences(
-                preferences,
+                context,
+                CONFIG_NAME,
+                Context.MODE_PRIVATE,
                 configSecretKey
             )
         )
@@ -39,11 +41,7 @@ internal object SecretKeys {
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
     fun getOrCreate(context: Context): SecretKey {
-        val preferences = context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
-        val config =
-            getConfig(
-                preferences
-            )
+        val config = getConfig(context)
         // Read a existing secret key from config.
         // If there is no secret key exists. Then generates a new key and save it into config.
         return config.secretKey ?: getSecretGenerator()

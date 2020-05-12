@@ -8,17 +8,23 @@ import java.util.concurrent.ConcurrentHashMap
  * An implementation of [SharedPreferences] that encrypts keys and values.
  *
  * @param preferences any [SharedPreferences] used for save / read values.
- * @param encrypter an encrypter transforms plain text to encrypted text.
- * @param decrypter an decrypter transforms encrypted text to plain text.
+ * @param prefValueEncrypter an encrypter transforms plain text to encrypted text.
+ * @param prefValueDecrypter an decrypter transforms encrypted text to plain text.
  */
 internal class EncryptableSharedPreferences(
     private val preferences: SharedPreferences,
-    private val encrypter: Encrypter<String>,
-    decrypter: Decrypter<String>
+    private val prefNameEncrypter: Encrypter<String>,
+    prefNameDecrypter: Decrypter<String>,
+    private val prefValueEncrypter: Encrypter<String>,
+    prefValueDecrypter: Decrypter<String>
 ): SharedPreferences {
-    private val encrypt = encrypter::encrypt
+    private val pnEncrypt = prefNameEncrypter::encrypt
 
-    private val decrypt = decrypter::decrypt
+    private val pnDecrypt = prefNameDecrypter::decrypt
+
+    private val pvEncrypt = prefValueEncrypter::encrypt
+
+    private val pvDecrypt = prefValueDecrypter::decrypt
 
     /**
      * Checks whether the preferences contains a preference.
@@ -28,7 +34,7 @@ internal class EncryptableSharedPreferences(
      *  otherwise false.
      */
     override fun contains(key: String?): Boolean {
-        return preferences.contains(key?.let(encrypt))
+        return preferences.contains(key?.let(pnEncrypt))
     }
 
     /**
@@ -37,7 +43,7 @@ internal class EncryptableSharedPreferences(
      * you to modify the values in this SharedPreferences object.
      */
     override fun edit(): SharedPreferences.Editor {
-        return EditorImpl(preferences.edit(), encrypter)
+        return EditorImpl(preferences.edit(), prefNameEncrypter, prefValueEncrypter)
     }
 
     /**
@@ -47,18 +53,18 @@ internal class EncryptableSharedPreferences(
      */
     override fun getAll(): MutableMap<String, *> {
         val entries = preferences.all.entries.map {
-            val tName = decrypt(it.key)
+            val tName = pnDecrypt(it.key)
             val type = tName.substringBefore("_")
             val name = tName.substringAfter("_")
             val dValue = it.value as String
             val value: Any? =
                 when (type) {
-                    "boolean" -> decrypt(dValue).toBoolean()
-                    "float" -> decrypt(dValue).toFloat()
-                    "int" -> decrypt(dValue).toInt()
-                    "long" -> decrypt(dValue).toLong()
-                    "string" -> decrypt(dValue)
-                    "stringset" -> decrypt(dValue).split("8u^K>LK*O4").toMutableSet()
+                    "boolean" -> pvDecrypt(dValue).toBoolean()
+                    "float" -> pvDecrypt(dValue).toFloat()
+                    "int" -> pvDecrypt(dValue).toInt()
+                    "long" -> pvDecrypt(dValue).toLong()
+                    "string" -> pvDecrypt(dValue)
+                    "stringset" -> pvDecrypt(dValue).split("8u^K>LK*O4").toMutableSet()
                     else -> null
                 }
             name to value
@@ -75,12 +81,12 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not a boolean.
      */
     override fun getBoolean(key: String?, defValue: Boolean): Boolean {
-        val tName = key?.let { encrypt("boolean_$key") }
+        val tName = key?.let { pnEncrypt("boolean_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
-            decrypt(crypto).toBoolean()
+            pvDecrypt(crypto).toBoolean()
         }
     }
 
@@ -93,12 +99,12 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not an float.
      */
     override fun getFloat(key: String?, defValue: Float): Float {
-        val tName = key?.let { encrypt("float_$key") }
+        val tName = key?.let { pnEncrypt("float_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
-            decrypt(crypto).toFloat()
+            pvDecrypt(crypto).toFloat()
         }
     }
 
@@ -111,12 +117,12 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not an int.
      */
     override fun getInt(key: String?, defValue: Int): Int {
-        val tName = key?.let { encrypt("int_$key") }
+        val tName = key?.let { pnEncrypt("int_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
-            decrypt(crypto).toInt()
+            pvDecrypt(crypto).toInt()
         }
     }
 
@@ -129,12 +135,12 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not a long.
      */
     override fun getLong(key: String?, defValue: Long): Long {
-        val tName = key?.let { encrypt("long_$key") }
+        val tName = key?.let { pnEncrypt("long_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
-            decrypt(crypto).toLong()
+            pvDecrypt(crypto).toLong()
         }
     }
 
@@ -147,12 +153,12 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not a String.
      */
     override fun getString(key: String?, defValue: String?): String? {
-        val tName = key?.let { encrypt("string_$key") }
+        val tName = key?.let { pnEncrypt("string_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValue
         } else {
-            decrypt(crypto)
+            pvDecrypt(crypto)
         }
     }
 
@@ -165,7 +171,7 @@ internal class EncryptableSharedPreferences(
      * @throws ClassCastException if there is a preference with this name that is not a Set.
      */
     override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
-        val tName = key?.let { encrypt("stringset_$key") }
+        val tName = key?.let { pnEncrypt("stringset_$key") }
         val crypto = preferences.getString(tName, null)
         return if (crypto == null) {
             defValues
@@ -173,7 +179,7 @@ internal class EncryptableSharedPreferences(
             // An random generate string.
             // The random string is complex enough so it would not disturb the given data.
             val delimiter = "8u^K>LK*O4"
-            val values = decrypt(crypto).split(delimiter)
+            val values = pvDecrypt(crypto).split(delimiter)
             values.toMutableSet()
         }
     }
@@ -187,7 +193,7 @@ internal class EncryptableSharedPreferences(
     override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
         if (listener != null) {
             val encryptListener = SharedPreferences.OnSharedPreferenceChangeListener { _, crypto ->
-                val tName = decrypt(crypto)
+                val tName = pnDecrypt(crypto)
                 val name = tName.substringAfter("_")
                 listener.onSharedPreferenceChanged(this, name)
             }
@@ -219,13 +225,17 @@ internal class EncryptableSharedPreferences(
      * The editor implementation for [EncryptableSharedPreferences].
      *
      * @param editor the editor received from [preferences].
-     * @param encrypter an encrypter transforms plain text to encrypted text.
+     * @param prefNameEncrypter an encrypter transforms plain text to encrypted text.
+     * @param prefValueEncrypter an encrypter transforms plain text to encrypted text.
      */
     internal class EditorImpl(
         private val editor: SharedPreferences.Editor,
-        encrypter: Encrypter<String>
+        prefNameEncrypter: Encrypter<String>,
+        prefValueEncrypter: Encrypter<String>
     ): SharedPreferences.Editor {
-        private val encrypt = encrypter::encrypt
+        private val pnEncrypt = prefNameEncrypter::encrypt
+
+        private val pvEncrypt = prefValueEncrypter::encrypt
 
         /**
          * Commit your preferences changes back from this Editor to the
@@ -267,8 +277,8 @@ internal class EncryptableSharedPreferences(
          */
         override fun putBoolean(key: String?, value: Boolean): SharedPreferences.Editor {
             return editor.putString(
-                key?.let { encrypt("boolean_$key") } ,
-                value.toString().let(encrypt)
+                key?.let { pnEncrypt("boolean_$key") } ,
+                value.toString().let(pvEncrypt)
             )
         }
 
@@ -285,8 +295,8 @@ internal class EncryptableSharedPreferences(
         override fun putFloat(key: String?, value: Float): SharedPreferences.Editor {
             // TODO: use scientific notation to convert to string instead
             return editor.putString(
-                key?.let { encrypt("float_$key") } ,
-                value.toString().let(encrypt)
+                key?.let { pnEncrypt("float_$key") } ,
+                value.toString().let(pvEncrypt)
             )
         }
 
@@ -301,8 +311,8 @@ internal class EncryptableSharedPreferences(
          */
         override fun putInt(key: String?, value: Int): SharedPreferences.Editor {
             return editor.putString(
-                key?.let { encrypt("int_$key") } ,
-                value.toString().let(encrypt)
+                key?.let { pnEncrypt("int_$key") } ,
+                value.toString().let(pvEncrypt)
             )
         }
 
@@ -317,8 +327,8 @@ internal class EncryptableSharedPreferences(
          */
         override fun putLong(key: String?, value: Long): SharedPreferences.Editor {
             return editor.putString(
-                key?.let { encrypt("long_$key") } ,
-                value.toString().let(encrypt)
+                key?.let { pnEncrypt("long_$key") } ,
+                value.toString().let(pvEncrypt)
             )
         }
 
@@ -335,8 +345,8 @@ internal class EncryptableSharedPreferences(
          */
         override fun putString(key: String?, value: String?): SharedPreferences.Editor {
             return editor.putString(
-                key?.let { encrypt("string_$key") } ,
-                value?.let(encrypt)
+                key?.let { pnEncrypt("string_$key") } ,
+                value?.let(pvEncrypt)
             )
         }
 
@@ -357,8 +367,8 @@ internal class EncryptableSharedPreferences(
             // The random string is complex enough so it would not disturb the given data.
             val separator = "8u^K>LK*O4"
             return editor.putString(
-                key?.let { encrypt("stringset_$key") } ,
-                values?.joinToString(separator)?.let(encrypt)
+                key?.let { pnEncrypt("stringset_$key") } ,
+                values?.joinToString(separator)?.let(pvEncrypt)
             )
         }
 
@@ -377,7 +387,7 @@ internal class EncryptableSharedPreferences(
                 // Try remove all combinations of (type, key)
                 listOf("boolean", "float", "int", "long", "string", "stringset")
                     .map { "${it}_${key}" }
-                    .forEach { editor.remove(encrypt(it)) }
+                    .forEach { editor.remove(pnEncrypt(it)) }
             }
             return editor
         }
