@@ -27,7 +27,7 @@ Add the dependency.
 
 ```groovy
 dependencies {
-    implementation 'com.github.ibara1454:secure-shared-preferences:v0.1.0'
+    implementation 'com.github.ibara1454:secure-shared-preferences:v0.1.1'
 }
 ```
 
