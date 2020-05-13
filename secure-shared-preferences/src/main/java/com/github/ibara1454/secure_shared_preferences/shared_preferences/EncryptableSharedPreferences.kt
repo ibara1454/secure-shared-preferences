@@ -253,7 +253,8 @@ internal class EncryptableSharedPreferences(
          * will be any that you have defined in this editor.
          */
         override fun clear(): SharedPreferences.Editor {
-            return editor.clear()
+            editor.clear()
+            return this
         }
 
         /**
@@ -276,10 +277,11 @@ internal class EncryptableSharedPreferences(
          * chain put calls together.
          */
         override fun putBoolean(key: String?, value: Boolean): SharedPreferences.Editor {
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("boolean_$key") } ,
                 value.toString().let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -294,10 +296,11 @@ internal class EncryptableSharedPreferences(
          */
         override fun putFloat(key: String?, value: Float): SharedPreferences.Editor {
             // TODO: use scientific notation to convert to string instead
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("float_$key") } ,
                 value.toString().let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -310,10 +313,11 @@ internal class EncryptableSharedPreferences(
          *  chain put calls together.
          */
         override fun putInt(key: String?, value: Int): SharedPreferences.Editor {
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("int_$key") } ,
                 value.toString().let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -326,10 +330,11 @@ internal class EncryptableSharedPreferences(
          *  chain put calls together.
          */
         override fun putLong(key: String?, value: Long): SharedPreferences.Editor {
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("long_$key") } ,
                 value.toString().let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -344,10 +349,11 @@ internal class EncryptableSharedPreferences(
          *  chain put calls together.
          */
         override fun putString(key: String?, value: String?): SharedPreferences.Editor {
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("string_$key") } ,
                 value?.let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -366,10 +372,11 @@ internal class EncryptableSharedPreferences(
             // An random generate string.
             // The random string is complex enough so it would not disturb the given data.
             val separator = "8u^K>LK*O4"
-            return editor.putString(
+            editor.putString(
                 key?.let { pnEncrypt("stringset_$key") } ,
                 values?.joinToString(separator)?.let(pvEncrypt)
             )
+            return this
         }
 
         /**
@@ -389,7 +396,7 @@ internal class EncryptableSharedPreferences(
                     .map { "${it}_${key}" }
                     .forEach { editor.remove(pnEncrypt(it)) }
             }
-            return editor
+            return this
         }
     }
 }
