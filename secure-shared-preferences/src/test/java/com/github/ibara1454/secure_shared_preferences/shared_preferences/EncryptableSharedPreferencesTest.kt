@@ -412,7 +412,9 @@ class EditorImplTest {
         every { nativeEditor.clear() } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.clear()
+        val actual = editor.clear()
+
+        assertThat(actual).isEqualTo(editor)
 
         verify(exactly = 1) { nativeEditor.clear() }
     }
@@ -445,7 +447,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putBoolean("name", true)
+        val actual = editor.putBoolean("name", true)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("boolean_name")
@@ -466,7 +470,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putFloat("name", 1.0f)
+        val actual = editor.putFloat("name", 1.0f)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("float_name")
@@ -487,7 +493,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putInt("name", 1)
+        val actual = editor.putInt("name", 1)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("int_name")
@@ -508,7 +516,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putLong("name", 1L)
+        val actual = editor.putLong("name", 1L)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("long_name")
@@ -529,7 +539,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putString("name", "value")
+        val actual = editor.putString("name", "value")
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("string_name")
@@ -550,7 +562,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putString("name", null)
+        val actual = editor.putString("name", null)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("string_name")
@@ -570,7 +584,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putStringSet("name", mutableSetOf("1", "2", "3"))
+        val actual = editor.putStringSet("name", mutableSetOf("1", "2", "3"))
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("stringset_name")
@@ -591,7 +607,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putStringSet("name", mutableSetOf())
+        val actual = editor.putStringSet("name", mutableSetOf())
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("stringset_name")
@@ -612,7 +630,9 @@ class EditorImplTest {
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.putStringSet("name", null)
+        val actual = editor.putStringSet("name", null)
+
+        assertThat(actual).isEqualTo(editor)
 
         verifyAll {
             prefNameEncrypter.encrypt("stringset_name")
@@ -633,7 +653,9 @@ class EditorImplTest {
 
         val name = "name"
         val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
-        editor.remove(name)
+        val actual = editor.remove(name)
+
+        assertThat(actual).isEqualTo(editor)
 
         verify {
             nativeEditor.remove("encrypted_boolean_name")
