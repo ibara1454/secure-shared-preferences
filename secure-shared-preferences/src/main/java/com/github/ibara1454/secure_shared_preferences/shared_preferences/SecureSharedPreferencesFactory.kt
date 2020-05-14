@@ -11,7 +11,7 @@ class SecureSharedPreferencesFactory(
     private val context: Context,
     private val factory: SharedPreferencesFactory = EncryptedSharedPreferencesFactory(context),
     private val config: SecuredSharedPreferences = SecuredSharedPreferences(
-        factory.create("", Context.MODE_PRIVATE)
+        factory.create(CONFIG_NAME, Context.MODE_PRIVATE)
     )
 ): SharedPreferencesFactory {
     @VisibleForTesting
@@ -44,5 +44,11 @@ class SecureSharedPreferencesFactory(
             // TODO: throw custom exception
             if (!result) throw IOException()
         }
+    }
+
+    companion object {
+        // The name of preferences of config
+        // echo -n "SecureSharedPreferencesFactory_config" | sha256sum
+        private const val CONFIG_NAME = "f4f9f04c3f5941b8f3de2b8b5b3f00c22d9141a4488798c2800937b6a084669f"
     }
 }

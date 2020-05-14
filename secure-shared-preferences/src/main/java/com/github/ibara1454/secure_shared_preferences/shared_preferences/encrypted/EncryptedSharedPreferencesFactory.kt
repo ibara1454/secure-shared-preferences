@@ -124,8 +124,8 @@ internal class EncryptedSharedPreferencesFactory(
 
         companion object {
             // The name of preferences of config
-            // echo -n "SecureSharedPreferencesFactory_config" | sha256sum
-            private const val CONFIG_NAME = "f4f9f04c3f5941b8f3de2b8b5b3f00c22d9141a4488798c2800937b6a084669f"
+            // echo -n "EncryptedSharedPreferencesFactory_config" | sha256sum
+            private const val CONFIG_NAME = "906841c010c008bc0b7e89870f71ddd09e9a41420323d19abe5142609499cef1"
             private const val ENCRYPT_TYPE_KEY = "encrypt_type"
         }
     }
