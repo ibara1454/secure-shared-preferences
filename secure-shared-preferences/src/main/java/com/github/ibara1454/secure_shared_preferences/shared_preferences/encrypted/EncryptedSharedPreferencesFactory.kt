@@ -1,5 +1,6 @@
 package com.github.ibara1454.secure_shared_preferences.shared_preferences.encrypted
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -24,6 +25,8 @@ internal class EncryptedSharedPreferencesFactory(
                 else -> EncryptType.KEYSTORE
             }
 
+    // Suppress the lint error "Error: Call requires API level 23"
+    @SuppressLint("NewApi")
     @VisibleForTesting
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
@@ -35,6 +38,8 @@ internal class EncryptedSharedPreferencesFactory(
                 SafeSharedPreferencesFactory(
                     context
                 ).create(name, mode)
+            // The class KeystoreEncryptedSharedPreferencesFactory only be used on version greater
+            //  than or equal to M.
             EncryptType.KEYSTORE -> {
                 // TODO: catch exceptions thrown from EncryptedSharedPreferences.create
                 KeystoreEncryptedSharedPreferencesFactory(

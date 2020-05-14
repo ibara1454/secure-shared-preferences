@@ -2,6 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka'
+// Add the coverage generating task `jacocoTestReport`
+// See: https://github.com/codecov/example-android/tree/4a81cecfe873a6f9ebfcfad52f185fe38998e587
+apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion 29
@@ -32,6 +35,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            testCoverageEnabled true
+        }
     }
 
     testOptions {
@@ -54,6 +60,16 @@ android {
 dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/dokka"
+}
+
+// Configure jacoco settings
+// See https://github.com/arturdm/jacoco-android-gradle-plugin/tree/dd9d8ceaa9e7c21babddf048a9d02ab36b489bd6
+jacoco {
+    toolVersion = "0.8.4"
+}
+// Lookup test for Robolectric using
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
 }
 
 dependencies {

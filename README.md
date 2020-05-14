@@ -1,6 +1,7 @@
 # Secure shared preferences
 
 [![Jitpack](https://jitpack.io/v/ibara1454/secure-shared-preferences.svg)](https://jitpack.io/#ibara1454/secure-shared-preferences)
+[![codecov](https://codecov.io/gh/ibara1454/secure-shared-preferences/branch/master/graph/badge.svg)](https://codecov.io/gh/ibara1454/secure-shared-preferences)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 The encrypted SharedPreferences for Android.
