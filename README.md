@@ -1,5 +1,6 @@
 # Secure shared preferences
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/476229a457a74d91a3d95b5eec96209b)](https://app.codacy.com/manual/ibara1454/secure-shared-preferences?utm_source=github.com&utm_medium=referral&utm_content=ibara1454/secure-shared-preferences&utm_campaign=Badge_Grade_Dashboard)
 [![Jitpack](https://jitpack.io/v/ibara1454/secure-shared-preferences.svg)](https://jitpack.io/#ibara1454/secure-shared-preferences)
 [![codecov](https://codecov.io/gh/ibara1454/secure-shared-preferences/branch/master/graph/badge.svg)](https://codecov.io/gh/ibara1454/secure-shared-preferences)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
