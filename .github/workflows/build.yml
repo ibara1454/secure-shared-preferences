@@ -2,9 +2,12 @@ name: build
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches:
+      - master
+
+env:
+  APP_DIR: app
+  LIB_DIR: secure-shared-preferences
 
 jobs:
   build:
@@ -13,20 +16,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Run Unit Test
-      run: ./gradlew test
 
-    - name: Run Android Lint
-      run: ./gradlew lint
-
-    - name: Run KtLint
-      # The option `--continue` is required since we don't want this task interrupted on only
-      # one warning / error
-      run: ./gradlew --continue ktlintCheck
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
     - name: Build coverage report
       run: ./gradlew jacocoTestReport
@@ -38,8 +39,9 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+    # The following generates debug / release APKs and libraries
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: ./gradlew assemble
 
     - name: Upload results
       uses: actions/upload-artifact@v2
@@ -47,8 +49,14 @@ jobs:
         name: report
         path: ./**/build/reports
 
-    - name: Upload apk file
+    - name: Upload apk files
       uses: actions/upload-artifact@v2
       with:
         name: apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: ${{ env.APP_DIR }}/build/outputs/apk
+
+    - name: Upload aar files
+      uses: actions/upload-artifact@v2
+      with:
+        name: aar
+        path: ${{ env.LIB_DIR }}/build/outputs/aar/
