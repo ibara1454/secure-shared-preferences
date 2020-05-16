@@ -3,10 +3,17 @@ package com.github.ibara1454.secure_shared_preferences.secret
 import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.github.ibara1454.secure_shared_preferences.cipher.*
+import com.github.ibara1454.secure_shared_preferences.cipher.Decoder
+import com.github.ibara1454.secure_shared_preferences.cipher.Encoder
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SecretKeys
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.called
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
@@ -38,7 +45,8 @@ class SecretKeysTest {
         val key = null
         val newKey = "new secret key".toByteArray()
         every { SecretKeys.getConfig(any()) getProperty "secretKey" } returns key
-        every { SecretKeys.getConfig(any()) setProperty "secretKey" value any<ByteArray>() } just Runs
+        every { SecretKeys.getConfig(any()) setProperty "secretKey" value any<ByteArray>() } just
+            Runs
         every { SecretKeys.getSecretGenerator().generate() } returns newKey
 
         val actual = SecretKeys.getOrCreate(appContext)
@@ -58,7 +66,8 @@ class SecretKeysTest {
         val newKey = "new secret key".toByteArray()
         val exception = IOException()
         every { SecretKeys.getConfig(any()) getProperty "secretKey" } returns key
-        every { SecretKeys.getConfig(any()) setProperty "secretKey" value any<ByteArray>() } throws exception
+        every { SecretKeys.getConfig(any()) setProperty "secretKey" value any<ByteArray>() } throws
+            exception
         every { SecretKeys.getSecretGenerator().generate() } returns newKey
 
         try {
@@ -112,7 +121,8 @@ class SecretKeysConfigTest {
     fun test_secretKey_get_returns_byte_array_if_key_exist() {
         val preferences = mockk<SharedPreferences>()
         val key = "dummy key".toByteArray()
-        every { preferences.getString(any(), any()) } returns (key + 0x0.toByte()).toString(Charsets.UTF_8)
+        every { preferences.getString(any(), any()) } returns
+            (key + 0x0.toByte()).toString(Charsets.UTF_8)
 
         val encoder = mockk<Encoder<SecretKey>>()
 

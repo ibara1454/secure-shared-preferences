@@ -25,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 class FixedIVAESCBCEncrypter
 @Throws(InvalidSpecificationException::class, InvalidKeyException::class, InvalidIVException::class)
-constructor(secretKey: ByteArray, iv: ByteArray): Encrypter<ByteArray> {
+constructor(secretKey: ByteArray, iv: ByteArray) : Encrypter<ByteArray> {
     private val encrypter: Cipher
 
     init {

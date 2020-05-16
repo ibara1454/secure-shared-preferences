@@ -5,9 +5,8 @@ import android.content.SharedPreferences
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.SharedPreferencesFactory
 import java.io.IOException
 
-internal class SafeSharedPreferencesFactory(private val context: Context):
-    SharedPreferencesFactory
-{
+internal class SafeSharedPreferencesFactory(private val context: Context) :
+    SharedPreferencesFactory {
     /**
      * Create a [SafeSharedPreferences].
      *

@@ -5,7 +5,7 @@ import com.github.ibara1454.secure_shared_preferences.exception.DecodingExceptio
 /**
  * The encoder transforms the given base64 input into original data.
  */
-internal class Base64Decoder: Decoder<ByteArray> {
+internal class Base64Decoder : Decoder<ByteArray> {
     /**
      * Transform the given no-wrap base64 (one long line) to original data.
      *

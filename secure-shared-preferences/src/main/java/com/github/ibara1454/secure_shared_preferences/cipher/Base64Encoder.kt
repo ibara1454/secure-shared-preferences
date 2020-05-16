@@ -3,7 +3,7 @@ package com.github.ibara1454.secure_shared_preferences.cipher
 /**
  * The encoder transforms the given byte array into base64 format.
  */
-internal class Base64Encoder: Encoder<ByteArray> {
+internal class Base64Encoder : Encoder<ByteArray> {
     /**
      * Transform the given data to no-wrap base64 format (the output will be on one long line).
      *

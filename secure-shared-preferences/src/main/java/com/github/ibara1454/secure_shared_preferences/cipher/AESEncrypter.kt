@@ -17,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 internal class AESEncrypter
 @Throws(InvalidSpecificationException::class, InvalidKeyException::class)
-constructor(secretKey: ByteArray): Encrypter<ByteArray> {
+constructor(secretKey: ByteArray) : Encrypter<ByteArray> {
     private val encrypter: Cipher
     // The 16-byte length secret key
     private val secretKeySpec: SecretKeySpec

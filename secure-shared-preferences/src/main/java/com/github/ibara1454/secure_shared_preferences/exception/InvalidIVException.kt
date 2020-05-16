@@ -5,6 +5,6 @@ import java.security.InvalidParameterException
 /**
  * The exception indicates that initial vector is not in a correct format.
  */
-class InvalidIVException: InvalidParameterException(
+class InvalidIVException : InvalidParameterException(
     "Wrong IV length: must be 16 bytes long."
 )

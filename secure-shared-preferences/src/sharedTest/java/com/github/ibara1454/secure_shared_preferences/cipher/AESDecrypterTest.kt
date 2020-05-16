@@ -4,7 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class AESDecrypterTest {
-    private fun byteArrayOfInts(vararg ints: Int) = ByteArray(ints.size) { pos -> ints[pos].toByte() }
+    private fun byteArrayOfInts(vararg ints: Int) =
+        ByteArray(ints.size) { pos -> ints[pos].toByte() }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_constructor_throws_exception_with_non_128_bits_key() {

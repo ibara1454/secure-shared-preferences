@@ -15,7 +15,7 @@ internal class EncryptedSharedPreferencesFactory(
     private val config: EncryptedSharedPreferencesConfig = EncryptedSharedPreferencesConfig(
         context
     )
-): SharedPreferencesFactory {
+) : SharedPreferencesFactory {
     @VisibleForTesting
     val topEncryptType: EncryptType
         get() =
@@ -51,7 +51,11 @@ internal class EncryptedSharedPreferencesFactory(
     @VisibleForTesting
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
-    fun tryCreate(name: String, mode: Int, type: EncryptType): Pair<SharedPreferences, EncryptType> =
+    fun tryCreate(
+        name: String,
+        mode: Int,
+        type: EncryptType
+    ): Pair<SharedPreferences, EncryptType> =
         try {
             create(name, mode, type) to type
         } catch (e: IOException) {
@@ -98,7 +102,8 @@ internal class EncryptedSharedPreferencesFactory(
 
     class EncryptedSharedPreferencesConfig(context: Context) {
         @VisibleForTesting
-        val config: SharedPreferences = context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
+        val config: SharedPreferences =
+            context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
 
         @VisibleForTesting
         // TODO: replace this exception by domain specific exception
@@ -130,7 +135,8 @@ internal class EncryptedSharedPreferencesFactory(
         companion object {
             // The name of preferences of config
             // echo -n "EncryptedSharedPreferencesFactory_config" | sha256sum
-            private const val CONFIG_NAME = "906841c010c008bc0b7e89870f71ddd09e9a41420323d19abe5142609499cef1"
+            private const val CONFIG_NAME =
+                "906841c010c008bc0b7e89870f71ddd09e9a41420323d19abe5142609499cef1"
             private const val ENCRYPT_TYPE_KEY = "encrypt_type"
         }
     }

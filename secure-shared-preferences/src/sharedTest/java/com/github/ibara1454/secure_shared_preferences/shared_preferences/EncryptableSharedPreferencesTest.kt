@@ -4,12 +4,15 @@ import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.ibara1454.secure_shared_preferences.cipher.Decrypter
 import com.github.ibara1454.secure_shared_preferences.cipher.Encrypter
-
+import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyAll
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import com.google.common.truth.Truth.assertThat
-import io.mockk.*
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -33,7 +36,13 @@ class EncryptableSharedPreferencesTest {
 
         val prefValueDecrypter = mockk<Decrypter<String>>()
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.contains("name")
 
         assertThat(actual).isTrue()
@@ -53,7 +62,13 @@ class EncryptableSharedPreferencesTest {
 
         val prefValueDecrypter = mockk<Decrypter<String>>()
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.edit()
 
         assertThat(actual).isInstanceOf(EncryptableSharedPreferences.EditorImpl::class.java)
@@ -81,7 +96,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt(any()) } answers { firstArg() }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.all
 
         assertThat(actual).isEqualTo(mutableMapOf(
@@ -98,7 +119,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getBoolean_returns_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_boolean_name", any()) } answers { "encrypted_boolean_value" }
+        every { preferences.getString("encrypted_boolean_name", any()) } answers
+            { "encrypted_boolean_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -110,7 +132,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_boolean_value") } answers { "true" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getBoolean("name", false)
 
         assertThat(actual).isTrue()
@@ -120,7 +148,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getBoolean_returns_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_boolean_name", any()) } answers { "encrypted_boolean_value" }
+        every { preferences.getString("encrypted_boolean_name", any()) } answers
+            { "encrypted_boolean_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -132,7 +161,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_boolean_value") } answers { "true" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getBoolean("name_not_exist", false)
 
         assertThat(actual).isFalse()
@@ -142,7 +177,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getFloat_returns_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_float_name", any()) } answers { "encrypted_float_value" }
+        every { preferences.getString("encrypted_float_name", any()) } answers
+            { "encrypted_float_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -154,7 +190,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_float_value") } answers { "1.0" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getFloat("name", 0f)
 
         assertThat(actual).isEqualTo(1.0f)
@@ -164,7 +206,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getFloat_returns_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_float_name", any()) } answers { "encrypted_float_value" }
+        every { preferences.getString("encrypted_float_name", any()) } answers
+            { "encrypted_float_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -176,7 +219,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_float_value") } answers { "1.0" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getFloat("name_not_exist", 0f)
 
         assertThat(actual).isEqualTo(0.0f)
@@ -186,7 +235,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getInt_returns_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_int_name", any()) } answers { "encrypted_int_value" }
+        every { preferences.getString("encrypted_int_name", any()) } answers
+            { "encrypted_int_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -198,7 +248,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_int_value") } answers { "1" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getInt("name", 0)
 
         assertThat(actual).isEqualTo(1)
@@ -208,7 +264,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getInt_returns_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_int_name", any()) } answers { "encrypted_int_value" }
+        every { preferences.getString("encrypted_int_name", any()) } answers
+            { "encrypted_int_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -220,7 +277,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_int_value") } answers { "1" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getInt("name_not_exist", 0)
 
         assertThat(actual).isEqualTo(0)
@@ -230,7 +293,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getLong_returns_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_long_name", any()) } answers { "encrypted_long_value" }
+        every { preferences.getString("encrypted_long_name", any()) } answers
+            { "encrypted_long_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -242,7 +306,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_long_value") } answers { "1" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getLong("name", 0L)
 
         assertThat(actual).isEqualTo(1)
@@ -252,7 +322,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getLong_returns_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_long_name", any()) } answers { "encrypted_long_value" }
+        every { preferences.getString("encrypted_long_name", any()) } answers
+            { "encrypted_long_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -264,7 +335,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_long_value") } answers { "1" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getLong("name_not_exist", 0L)
 
         assertThat(actual).isEqualTo(0L)
@@ -274,7 +351,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getString_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_string_name", any()) } answers { "encrypted_string_value" }
+        every { preferences.getString("encrypted_string_name", any()) } answers
+            { "encrypted_string_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -284,9 +362,16 @@ class EncryptableSharedPreferencesTest {
         val prefValueEncrypter = mockk<Encrypter<String>>()
 
         val prefValueDecrypter = mockk<Decrypter<String>>()
-        every { prefValueDecrypter.decrypt("encrypted_string_value") } answers { "string_value" }
+        every { prefValueDecrypter.decrypt("encrypted_string_value") } answers
+            { "string_value" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getString("name", "defValue")
 
         assertThat(actual).isEqualTo("string_value")
@@ -296,7 +381,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getString_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_string_name", any()) } answers { "encrypted_string_value" }
+        every { preferences.getString("encrypted_string_name", any()) } answers
+            { "encrypted_string_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -306,9 +392,16 @@ class EncryptableSharedPreferencesTest {
         val prefValueEncrypter = mockk<Encrypter<String>>()
 
         val prefValueDecrypter = mockk<Decrypter<String>>()
-        every { prefValueDecrypter.decrypt("encrypted_string_value") } answers { "string_value" }
+        every { prefValueDecrypter.decrypt("encrypted_string_value") } answers
+            { "string_value" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getString("name_not_exist", null)
 
         assertThat(actual).isEqualTo(null)
@@ -318,7 +411,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getStringSet_stored_value_when_name_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_stringset_name", any()) } answers { "encrypted_stringset_value" }
+        every { preferences.getString("encrypted_stringset_name", any()) } answers
+            { "encrypted_stringset_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -328,9 +422,16 @@ class EncryptableSharedPreferencesTest {
         val prefValueEncrypter = mockk<Encrypter<String>>()
 
         val prefValueDecrypter = mockk<Decrypter<String>>()
-        every { prefValueDecrypter.decrypt("encrypted_stringset_value") } answers { "18u^K>LK*O428u^K>LK*O43" }
+        every { prefValueDecrypter.decrypt("encrypted_stringset_value") } answers
+            { "18u^K>LK*O428u^K>LK*O43" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getStringSet("name", null)
 
         assertThat(actual).isEqualTo(mutableSetOf("1", "2", "3"))
@@ -340,7 +441,8 @@ class EncryptableSharedPreferencesTest {
     fun test_getStringSet_defValue_when_name_not_exist() {
         val preferences = mockk<SharedPreferences>()
         every { preferences.getString(any(), any()) } answers { secondArg() }
-        every { preferences.getString("encrypted_stringset_name", any()) } answers { "encrypted_stringset_value" }
+        every { preferences.getString("encrypted_stringset_name", any()) } answers
+            { "encrypted_stringset_value" }
 
         val prefNameEncrypter = mockk<Encrypter<String>>()
         every { prefNameEncrypter.encrypt(any()) } answers { "encrypted_" + firstArg() }
@@ -352,7 +454,13 @@ class EncryptableSharedPreferencesTest {
         val prefValueDecrypter = mockk<Decrypter<String>>()
         every { prefValueDecrypter.decrypt("encrypted_stringset_value") } answers { "1;2;3" }
 
-        val sharedPrefs = EncryptableSharedPreferences(preferences, prefNameEncrypter, prefNameDecrypter, prefValueEncrypter, prefValueDecrypter)
+        val sharedPrefs = EncryptableSharedPreferences(
+            preferences,
+            prefNameEncrypter,
+            prefNameDecrypter,
+            prefValueEncrypter,
+            prefValueDecrypter
+        )
         val actual = sharedPrefs.getStringSet("name_not_exist", null)
 
         assertThat(actual).isEqualTo(null)
@@ -367,10 +475,17 @@ class EncryptableSharedPreferencesTest {
         // val preferences = mockk<SharedPreferences>()
         // every { preferences.registerOnSharedPreferenceChangeListener(any()) } just Runs
         //
-        // val listenerMaps = mutableMapOf<SharedPreferences.OnSharedPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener>()
+        // val listenerMaps = mutableMapOf<
+        // 　　　　SharedPreferences.OnSharedPreferenceChangeListener,
+        // 　　　　SharedPreferences.OnSharedPreferenceChangeListener
+        // >()
         //
-        // val comp = spyk(SymmetricKeyEncryptedSharedPreferences.Companion, recordPrivateCalls = true)
-        // every { comp getProperty "listenerMap" } propertyType listenerMaps::class returns listenerMaps
+        // val comp = spyk(
+        // 　　　　SymmetricKeyEncryptedSharedPreferences.Companion,
+        // 　　　　recordPrivateCalls = true
+        // )
+        // every { comp getProperty "listenerMap" } propertyType listenerMaps::class returns
+        // 　　　　listenerMaps
         //
         // val sharedPrefs = SymmetricKeyEncryptedSharedPreferences(encrypter, preferences)
         // sharedPrefs.registerOnSharedPreferenceChangeListener { _, _ -> }
@@ -396,7 +511,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.apply() } just Runs
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         editor.apply()
 
         verify(exactly = 1) { nativeEditor.apply() }
@@ -411,7 +530,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.clear() } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.clear()
 
         assertThat(actual).isEqualTo(editor)
@@ -428,7 +551,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.commit() } returns true
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.commit()
 
         verify { nativeEditor.commit() }
@@ -446,7 +573,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putBoolean("name", true)
 
         assertThat(actual).isEqualTo(editor)
@@ -469,7 +600,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putFloat("name", 1.0f)
 
         assertThat(actual).isEqualTo(editor)
@@ -492,7 +627,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putInt("name", 1)
 
         assertThat(actual).isEqualTo(editor)
@@ -515,7 +654,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putLong("name", 1L)
 
         assertThat(actual).isEqualTo(editor)
@@ -538,7 +681,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putString("name", "value")
 
         assertThat(actual).isEqualTo(editor)
@@ -561,7 +708,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putString("name", null)
 
         assertThat(actual).isEqualTo(editor)
@@ -583,7 +734,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putStringSet("name", mutableSetOf("1", "2", "3"))
 
         assertThat(actual).isEqualTo(editor)
@@ -606,7 +761,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putStringSet("name", mutableSetOf())
 
         assertThat(actual).isEqualTo(editor)
@@ -629,7 +788,11 @@ class EditorImplTest {
         val nativeEditor = mockk<SharedPreferences.Editor>()
         every { nativeEditor.putString(any(), any()) } returns nativeEditor
 
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.putStringSet("name", null)
 
         assertThat(actual).isEqualTo(editor)
@@ -652,7 +815,11 @@ class EditorImplTest {
         every { nativeEditor.remove(any()) } returns nativeEditor
 
         val name = "name"
-        val editor = EncryptableSharedPreferences.EditorImpl(nativeEditor, prefNameEncrypter, prefValueEncrypter)
+        val editor = EncryptableSharedPreferences.EditorImpl(
+            nativeEditor,
+            prefNameEncrypter,
+            prefValueEncrypter
+        )
         val actual = editor.remove(name)
 
         assertThat(actual).isEqualTo(editor)

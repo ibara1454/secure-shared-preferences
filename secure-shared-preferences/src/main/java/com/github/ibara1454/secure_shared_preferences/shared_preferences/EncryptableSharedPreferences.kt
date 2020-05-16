@@ -1,7 +1,8 @@
 package com.github.ibara1454.secure_shared_preferences.shared_preferences
 
 import android.content.SharedPreferences
-import com.github.ibara1454.secure_shared_preferences.cipher.*
+import com.github.ibara1454.secure_shared_preferences.cipher.Decrypter
+import com.github.ibara1454.secure_shared_preferences.cipher.Encrypter
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -17,7 +18,7 @@ internal class EncryptableSharedPreferences(
     prefNameDecrypter: Decrypter<String>,
     private val prefValueEncrypter: Encrypter<String>,
     prefValueDecrypter: Decrypter<String>
-): SharedPreferences {
+) : SharedPreferences {
     private val pnEncrypt = prefNameEncrypter::encrypt
 
     private val pnDecrypt = prefNameDecrypter::decrypt
@@ -190,7 +191,9 @@ internal class EncryptableSharedPreferences(
      * @param listener the callback will triggered on data changes.
      * @see [unregisterOnSharedPreferenceChangeListener]
      */
-    override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
+    override fun registerOnSharedPreferenceChangeListener(
+        listener: SharedPreferences.OnSharedPreferenceChangeListener?
+    ) {
         if (listener != null) {
             val encryptListener = SharedPreferences.OnSharedPreferenceChangeListener { _, crypto ->
                 val tName = pnDecrypt(crypto)
@@ -208,7 +211,9 @@ internal class EncryptableSharedPreferences(
      * @param listener the callback that should be unregistered.
      * @see [registerOnSharedPreferenceChangeListener]
      */
-    override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
+    override fun unregisterOnSharedPreferenceChangeListener(
+        listener: SharedPreferences.OnSharedPreferenceChangeListener?
+    ) {
         val encryptListener = listenerMap[listener]
         preferences.unregisterOnSharedPreferenceChangeListener(encryptListener)
         listenerMap.remove(listener)
@@ -217,8 +222,10 @@ internal class EncryptableSharedPreferences(
     companion object {
         // Note: The initialization of companion object itself is thread-safe.
         // See: https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html#companion-objects
-        private val listenerMap: MutableMap<SharedPreferences.OnSharedPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener>
-            = ConcurrentHashMap()
+        private val listenerMap: MutableMap<
+            SharedPreferences.OnSharedPreferenceChangeListener,
+            SharedPreferences.OnSharedPreferenceChangeListener
+        > = ConcurrentHashMap()
     }
 
     /**
@@ -232,7 +239,7 @@ internal class EncryptableSharedPreferences(
         private val editor: SharedPreferences.Editor,
         prefNameEncrypter: Encrypter<String>,
         prefValueEncrypter: Encrypter<String>
-    ): SharedPreferences.Editor {
+    ) : SharedPreferences.Editor {
         private val pnEncrypt = prefNameEncrypter::encrypt
 
         private val pvEncrypt = prefValueEncrypter::encrypt
@@ -278,7 +285,7 @@ internal class EncryptableSharedPreferences(
          */
         override fun putBoolean(key: String?, value: Boolean): SharedPreferences.Editor {
             editor.putString(
-                key?.let { pnEncrypt("boolean_$key") } ,
+                key?.let { pnEncrypt("boolean_$key") },
                 value.toString().let(pvEncrypt)
             )
             return this
@@ -297,7 +304,7 @@ internal class EncryptableSharedPreferences(
         override fun putFloat(key: String?, value: Float): SharedPreferences.Editor {
             // TODO: use scientific notation to convert to string instead
             editor.putString(
-                key?.let { pnEncrypt("float_$key") } ,
+                key?.let { pnEncrypt("float_$key") },
                 value.toString().let(pvEncrypt)
             )
             return this
@@ -314,7 +321,7 @@ internal class EncryptableSharedPreferences(
          */
         override fun putInt(key: String?, value: Int): SharedPreferences.Editor {
             editor.putString(
-                key?.let { pnEncrypt("int_$key") } ,
+                key?.let { pnEncrypt("int_$key") },
                 value.toString().let(pvEncrypt)
             )
             return this
@@ -331,7 +338,7 @@ internal class EncryptableSharedPreferences(
          */
         override fun putLong(key: String?, value: Long): SharedPreferences.Editor {
             editor.putString(
-                key?.let { pnEncrypt("long_$key") } ,
+                key?.let { pnEncrypt("long_$key") },
                 value.toString().let(pvEncrypt)
             )
             return this
@@ -350,7 +357,7 @@ internal class EncryptableSharedPreferences(
          */
         override fun putString(key: String?, value: String?): SharedPreferences.Editor {
             editor.putString(
-                key?.let { pnEncrypt("string_$key") } ,
+                key?.let { pnEncrypt("string_$key") },
                 value?.let(pvEncrypt)
             )
             return this
@@ -367,13 +374,14 @@ internal class EncryptableSharedPreferences(
          * @return returns a reference to the same Editor object, so you can
          * chain put calls together.
          */
-        override fun putStringSet(key: String?, values: MutableSet<String>?): SharedPreferences.Editor {
+        override fun putStringSet(key: String?, values: MutableSet<String>?):
+            SharedPreferences.Editor {
             // FIXME: choose separator dependent on value dynamically
             // An random generate string.
             // The random string is complex enough so it would not disturb the given data.
             val separator = "8u^K>LK*O4"
             editor.putString(
-                key?.let { pnEncrypt("stringset_$key") } ,
+                key?.let { pnEncrypt("stringset_$key") },
                 values?.joinToString(separator)?.let(pvEncrypt)
             )
             return this
@@ -393,7 +401,7 @@ internal class EncryptableSharedPreferences(
             if (key != null) {
                 // Try remove all combinations of (type, key)
                 listOf("boolean", "float", "int", "long", "string", "stringset")
-                    .map { "${it}_${key}" }
+                    .map { "${it}_$key" }
                     .forEach { editor.remove(pnEncrypt(it)) }
             }
             return this

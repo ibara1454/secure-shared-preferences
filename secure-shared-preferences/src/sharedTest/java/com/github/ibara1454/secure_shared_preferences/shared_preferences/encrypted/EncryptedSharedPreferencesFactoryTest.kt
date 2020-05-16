@@ -8,11 +8,17 @@ import com.github.ibara1454.secure_shared_preferences.shared_preferences.keystor
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferences
 import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SafeSharedPreferencesFactory
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.Called
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.lang.Exception
 
 @RunWith(AndroidJUnit4::class)
 class SecureSharedPreferencesFactoryTest {
@@ -22,10 +28,13 @@ class SecureSharedPreferencesFactoryTest {
     @Test
     fun test_create_returns_normal_shared_preferences_if_type_equals_to_NORMAL() {
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns
+            mockk<SafeSharedPreferences>()
 
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } returns mockk<EncryptedSharedPreferences>()
 
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
@@ -44,17 +53,21 @@ class SecureSharedPreferencesFactoryTest {
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) wasNot Called
-            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot
+                Called
         }
     }
 
     @Test
     fun test_create_returns_SymmetricKeyEncryptedSharedPreferences_if_type_equals_to_AES() {
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns
+            mockk<SafeSharedPreferences>()
 
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } returns mockk<EncryptedSharedPreferences>()
 
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
@@ -72,17 +85,21 @@ class SecureSharedPreferencesFactoryTest {
 
         verify {
             anyConstructed<SafeSharedPreferencesFactory>().create(name, mode)
-            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot Called
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) wasNot
+                Called
         }
     }
 
     @Test
     fun test_create_returns_EncryptedSharedPreferences_if_type_equals_to_KEYSTORE() {
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns
+            mockk<SafeSharedPreferences>()
 
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } returns mockk<EncryptedSharedPreferences>()
 
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
@@ -107,11 +124,14 @@ class SecureSharedPreferencesFactoryTest {
     @Test
     fun test_create_transparent_exception_if_exception_thrown_from_KEYSTORE() {
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns
+            mockk<SafeSharedPreferences>()
 
         val exception = IOException()
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } throws exception
 
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
@@ -296,7 +316,7 @@ class SecureSharedPreferencesFactoryTest {
     }
 
     @Test
-    fun test_create_returns_target_shared_preferences_if_currentEncryptType_exists_and_creation_succeeds() {
+    fun test_create_returns_target_shared_preferences_if_currentEncryptType_exists() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
         val type =
@@ -353,7 +373,7 @@ class SecureSharedPreferencesFactoryTest {
     }
 
     @Test
-    fun test_create_returns_proper_shared_preferences_if_currentEncryptType_not_exists_and_creation_succeeds() {
+    fun test_create_returns_proper_shared_preferences_if_currentEncryptType_not_exists() {
         val name = "name"
         val mode = Context.MODE_PRIVATE
         val targetType =
@@ -430,10 +450,13 @@ class SecureSharedPreferencesFactoryTest {
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns
+            mockk<SafeSharedPreferences>()
 
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } returns mockk<EncryptedSharedPreferences>()
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } returns mockk<EncryptedSharedPreferences>()
 
         val factory = spyk(
             EncryptedSharedPreferencesFactory(
@@ -462,11 +485,15 @@ class SecureSharedPreferencesFactoryTest {
         val config = mockk<EncryptedSharedPreferencesFactory.EncryptedSharedPreferencesConfig>()
 
         mockkConstructor(SafeSharedPreferencesFactory::class)
-        every { anyConstructed<SafeSharedPreferencesFactory>().create(any(), any()) } returns mockk<SafeSharedPreferences>()
+        every {
+            anyConstructed<SafeSharedPreferencesFactory>().create(any(), any())
+        } returns mockk<SafeSharedPreferences>()
 
         val exception = IOException()
         mockkConstructor(KeystoreEncryptedSharedPreferencesFactory::class)
-        every { anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any()) } throws exception
+        every {
+            anyConstructed<KeystoreEncryptedSharedPreferencesFactory>().create(any(), any())
+        } throws exception
 
         val factory = spyk(
             EncryptedSharedPreferencesFactory(

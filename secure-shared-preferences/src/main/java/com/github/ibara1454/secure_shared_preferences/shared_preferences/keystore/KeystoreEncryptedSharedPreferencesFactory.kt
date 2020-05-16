@@ -16,7 +16,7 @@ import com.github.ibara1454.secure_shared_preferences.shared_preferences.SharedP
  * @param context any application context or activity context.
  */
 @RequiresApi(Build.VERSION_CODES.M)
-class KeystoreEncryptedSharedPreferencesFactory(private val context: Context):
+class KeystoreEncryptedSharedPreferencesFactory(private val context: Context) :
     SharedPreferencesFactory {
     /**
      * Creates encrypted shared preferences.

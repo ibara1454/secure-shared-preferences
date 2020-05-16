@@ -1,6 +1,10 @@
 package com.github.ibara1454.secure_shared_preferences.cipher
 
-import com.github.ibara1454.secure_shared_preferences.exception.*
+import com.github.ibara1454.secure_shared_preferences.exception.DecryptionException
+import com.github.ibara1454.secure_shared_preferences.exception.IllegalBlockSizeException
+import com.github.ibara1454.secure_shared_preferences.exception.InvalidIVException
+import com.github.ibara1454.secure_shared_preferences.exception.InvalidKeyException
+import com.github.ibara1454.secure_shared_preferences.exception.InvalidSpecificationException
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -18,7 +22,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 internal class AESDecrypter
 @Throws(InvalidSpecificationException::class, InvalidKeyException::class)
-constructor(secretKey: ByteArray): Decrypter<ByteArray> {
+constructor(secretKey: ByteArray) : Decrypter<ByteArray> {
     private val decrypter: Cipher
     // The 16-byte length secret key
     private val secretKeySpec: SecretKeySpec

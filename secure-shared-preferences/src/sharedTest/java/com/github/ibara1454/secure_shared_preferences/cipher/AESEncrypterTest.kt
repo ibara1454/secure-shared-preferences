@@ -1,8 +1,7 @@
 package com.github.ibara1454.secure_shared_preferences.cipher
 
-import org.junit.Test
-
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
 class AESEncrypterTest {
 
@@ -33,7 +32,8 @@ class AESEncrypterTest {
     fun test_encrypt_convert_simple_text_to_cipher_text() {
         val key = "1234567890123456".toByteArray() // 128-bit string
         val encrypter = AESEncrypter(key)
-        val input = "hello world".toByteArray() // 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64
+        // 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64
+        val input = "hello world".toByteArray()
 
         val actual = encrypter.encrypt(input)
 

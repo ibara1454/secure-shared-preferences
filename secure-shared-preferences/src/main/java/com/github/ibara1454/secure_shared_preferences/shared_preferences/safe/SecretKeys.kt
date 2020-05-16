@@ -3,9 +3,13 @@ package com.github.ibara1454.secure_shared_preferences.shared_preferences.safe
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
-import com.github.ibara1454.secure_shared_preferences.cipher.*
+import com.github.ibara1454.secure_shared_preferences.cipher.Base64Decoder
+import com.github.ibara1454.secure_shared_preferences.cipher.Base64Encoder
+import com.github.ibara1454.secure_shared_preferences.cipher.Decoder
+import com.github.ibara1454.secure_shared_preferences.cipher.Encoder
 import com.github.ibara1454.secure_shared_preferences.secret.SecretGenerator
 import com.github.ibara1454.secure_shared_preferences.secret.SecretKey
+import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SecretKeys.getOrCreate
 import java.io.IOException
 
 /**
@@ -53,9 +57,12 @@ internal object SecretKeys {
 
     // The name of preferences of config
     // echo -n "SymmetricKeyEncryptedSharedPreferencesFactory_config" | sha256sum
-    private const val CONFIG_NAME = "ab6a6d8c47c1613694850bb67eaba9545e87b63629acc85159346cee3e646d76"
-    // The secret key for encrypting this config preferences. There is no way to hide this key without using KeyStore.
-    private val configSecretKey: ByteArray = byteArrayOf(71, -6, -39, 122, -19, -86, 90, 14, -123, 86, -65, -35, -56, -4, -51, -95)
+    private const val CONFIG_NAME =
+        "ab6a6d8c47c1613694850bb67eaba9545e87b63629acc85159346cee3e646d76"
+    // The secret key for encrypting this config preferences.
+    //  There is no way to hide this key without using KeyStore.
+    private val configSecretKey: ByteArray =
+        byteArrayOf(71, -6, -39, 122, -19, -86, 90, 14, -123, 86, -65, -35, -56, -4, -51, -95)
 
     /**
      * The configuration class provides accessors to read / save secret keys.

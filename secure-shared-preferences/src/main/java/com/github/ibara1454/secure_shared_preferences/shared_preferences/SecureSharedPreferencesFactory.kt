@@ -13,7 +13,7 @@ class SecureSharedPreferencesFactory(
     private val config: SecuredSharedPreferences = SecuredSharedPreferences(
         factory.create(CONFIG_NAME, Context.MODE_PRIVATE)
     )
-): SharedPreferencesFactory {
+) : SharedPreferencesFactory {
     @VisibleForTesting
     fun getUUIDGenerator(): UUIDGenerator = UUIDGenerator()
 
@@ -49,6 +49,7 @@ class SecureSharedPreferencesFactory(
     companion object {
         // The name of preferences of config
         // echo -n "SecureSharedPreferencesFactory_config" | sha256sum
-        private const val CONFIG_NAME = "f4f9f04c3f5941b8f3de2b8b5b3f00c22d9141a4488798c2800937b6a084669f"
+        private const val CONFIG_NAME =
+            "f4f9f04c3f5941b8f3de2b8b5b3f00c22d9141a4488798c2800937b6a084669f"
     }
 }

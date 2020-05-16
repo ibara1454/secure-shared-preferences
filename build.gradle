@@ -3,23 +3,36 @@
 buildscript {
     ext.kotlin_version = '1.3.71'
     ext.dokka_version = '0.10.0'
+    ext.ktlint_version = '9.2.1'
     repositories {
         google()
         jcenter()
-
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.4'
-
+        // The KtLint gradle plugin
+        // https://github.com/jlleitschuh/ktlint-gradle
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:$ktlint_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
+    // Apply KtLint to all sub-projects
+    apply plugin: "org.jlleitschuh.gradle.ktlint"
+
+    ktlint {
+        android = true
+        disabledRules = [
+            "import-ordering" // Disable using lexicographical order
+        ]
+    }
+
     repositories {
         google()
         jcenter()

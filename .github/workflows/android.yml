@@ -23,6 +23,11 @@ jobs:
     - name: Run Android Lint
       run: ./gradlew lint
 
+    - name: Run KtLint
+      # The option `--continue` is required since we don't want this task interrupted on only
+      # one warning / error
+      run: ./gradlew --continue ktlintCheck
+
     - name: Build coverage report
       run: ./gradlew jacocoTestReport
 
