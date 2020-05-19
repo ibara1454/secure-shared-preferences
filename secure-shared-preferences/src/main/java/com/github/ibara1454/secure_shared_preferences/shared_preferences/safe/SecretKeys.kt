@@ -9,7 +9,6 @@ import com.github.ibara1454.secure_shared_preferences.cipher.Decoder
 import com.github.ibara1454.secure_shared_preferences.cipher.Encoder
 import com.github.ibara1454.secure_shared_preferences.secret.SecretGenerator
 import com.github.ibara1454.secure_shared_preferences.secret.SecretKey
-import com.github.ibara1454.secure_shared_preferences.shared_preferences.safe.SecretKeys.getOrCreate
 import java.io.IOException
 
 /**
@@ -44,11 +43,11 @@ internal object SecretKeys {
      */
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
-    fun getOrCreate(context: Context): SecretKey {
+    fun getOrCreate(context: Context): SecretKey = synchronized(this::class) {
         val config = getConfig(context)
         // Read a existing secret key from config.
         // If there is no secret key exists. Then generates a new key and save it into config.
-        return config.secretKey ?: getSecretGenerator()
+        config.secretKey ?: getSecretGenerator()
             .generate().also {
             // Save new key into config
             config.secretKey = it
@@ -84,7 +83,7 @@ internal object SecretKeys {
         var secretKey: SecretKey?
             // TODO: replace this exception by domain specific exception
             @Throws(IOException::class)
-            set(value) {
+            set(value) = synchronized(this::class) {
                 // Convert byte array to string.
                 // Note that not every byte array can be convert to the specific encoding string
                 //  (would be garbled), so we have to convert byte array to an
@@ -93,19 +92,21 @@ internal object SecretKeys {
                 // Important: use synchronized `commit` instead of `apply` to make sure any
                 //  failure during saving this key would not be ignored.
                 val result = preferences.edit()
-                        .putString(KEY_NAME, secret)
-                        .commit()
+                    .putString(KEY_NAME, secret)
+                    .commit()
                 // TODO: throw custom exception
                 if (!result) throw IOException()
             }
-            get() = preferences.getString(KEY_NAME, "").run {
-                if (this == null || this.isEmpty()) {
-                    null
-                } else {
-                    // Convert string to byte array.
-                    // Since the string is encrypted by the given encrypter, we have to decrypt it
-                    //  before convert to string.
-                    decoder.decode(this.toByteArray(charset))
+            get() = synchronized(this::class) {
+                preferences.getString(KEY_NAME, "").run {
+                    if (this == null || this.isEmpty()) {
+                        null
+                    } else {
+                        // Convert string to byte array.
+                        // Since the string is encrypted by the given encrypter, we have to decrypt it
+                        //  before convert to string.
+                        decoder.decode(this.toByteArray(charset))
+                    }
                 }
             }
 

@@ -71,8 +71,7 @@ internal class EncryptedSharedPreferencesFactory(
 
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
-    @Synchronized
-    override fun create(name: String, mode: Int): SharedPreferences {
+    override fun create(name: String, mode: Int): SharedPreferences = synchronized(this::class) {
         val currentType = config.currentEncryptType
         val targetType = currentType ?: topEncryptType
         // Since creation of SharedPreferences need IO performances, not every time the creation
@@ -109,7 +108,7 @@ internal class EncryptedSharedPreferencesFactory(
         // TODO: replace this exception by domain specific exception
         var currentEncryptType: EncryptType?
             @Throws(IOException::class)
-            set(value) {
+            set(value) = synchronized(this::class) {
                 // Important: use synchronized `commit` instead of `apply` to make sure any
                 //  failure during saving this key would not be ignored.
                 val result = config
@@ -119,15 +118,17 @@ internal class EncryptedSharedPreferencesFactory(
                 // TODO: throw custom exception
                 if (!result) throw IOException()
             }
-            get() = config.getString(ENCRYPT_TYPE_KEY, "").run {
-                if (this == null || this.isEmpty()) {
-                    null
-                } else {
-                    when (this) {
-                        EncryptType.NONE.name -> EncryptType.NONE
-                        EncryptType.SAFE.name -> EncryptType.SAFE
-                        EncryptType.KEYSTORE.name -> EncryptType.KEYSTORE
-                        else -> null
+            get() = synchronized(this::class) {
+                config.getString(ENCRYPT_TYPE_KEY, "").run {
+                    if (this == null || this.isEmpty()) {
+                        null
+                    } else {
+                        when (this) {
+                            EncryptType.NONE.name -> EncryptType.NONE
+                            EncryptType.SAFE.name -> EncryptType.SAFE
+                            EncryptType.KEYSTORE.name -> EncryptType.KEYSTORE
+                            else -> null
+                        }
                     }
                 }
             }

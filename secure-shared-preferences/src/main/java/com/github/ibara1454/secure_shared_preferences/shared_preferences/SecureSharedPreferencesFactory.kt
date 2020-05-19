@@ -18,8 +18,8 @@ class SecureSharedPreferencesFactory(
     fun getUUIDGenerator(): UUIDGenerator = UUIDGenerator()
 
     @VisibleForTesting
-    fun getOrCreateMappedName(key: String): String {
-        return config.getMappedName(key) ?: getUUIDGenerator().generate().also {
+    fun getOrCreateMappedName(key: String): String = synchronized(this::class) {
+        config.getMappedName(key) ?: getUUIDGenerator().generate().also {
             config.setMappedName(key, it)
         }
     }
@@ -30,11 +30,11 @@ class SecureSharedPreferencesFactory(
     }
 
     class SecuredSharedPreferences(private val preferences: SharedPreferences) {
-        fun getMappedName(key: String): String? {
-            return preferences.getString(key, null)
+        fun getMappedName(key: String): String? = synchronized(this::class) {
+            preferences.getString(key, null)
         }
 
-        fun setMappedName(key: String, value: String) {
+        fun setMappedName(key: String, value: String) = synchronized(this::class) {
             // Important: use synchronized `commit` instead of `apply` to make sure any
             //  failure during saving this key would not be ignored.
             val result = preferences

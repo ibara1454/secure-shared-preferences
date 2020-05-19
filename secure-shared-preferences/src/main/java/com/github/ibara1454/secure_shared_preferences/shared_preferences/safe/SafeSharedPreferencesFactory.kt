@@ -17,7 +17,6 @@ internal class SafeSharedPreferencesFactory(private val context: Context) :
      */
     // TODO: replace this exception by domain specific exception
     @Throws(IOException::class)
-    @Synchronized
     override fun create(name: String, mode: Int): SharedPreferences {
         val key = SecretKeys.getOrCreate(context)
 
